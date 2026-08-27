@@ -332,10 +332,10 @@ footer.bot a{color:var(--accent)}
       <span><i style="background:var(--up-soft);border-bottom:3px solid var(--up)"></i>mêmes seuils</span>
       <span class="lg-title">Survole la courbe pour lire les valeurs à l'heure exacte.</span>
       <span class="lg-title">Lourdeur —</span>
-      <span><i style="background:var(--up);opacity:.3"></i><i style="background:var(--up);opacity:.6"></i><i style="background:var(--up);opacity:.92"></i>point de rosée 14 → 20 °C</span>
+      <span><i style="background:var(--up);opacity:.3"></i><i style="background:var(--up);opacity:.6"></i><i style="background:var(--up);opacity:.92"></i>point de rosée <span id="lgMug">—</span></span>
       <span><i style="background:var(--crit);border-radius:50%;width:5px;height:5px;opacity:.45"></i><i
         style="background:var(--crit);border-radius:50%;width:8px;height:8px;opacity:.85;margin-left:0"></i><i
-        style="background:var(--crit);border-radius:50%;width:11px;height:11px;margin-left:0"></i>énergie orageuse 300 → 1500 J/kg</span>
+        style="background:var(--crit);border-radius:50%;width:11px;height:11px;margin-left:0"></i>énergie orageuse <span id="lgStorm">—</span></span>
       <span class="lg-title">Journal —</span>
       <span><i style="background:var(--ok);opacity:.3"></i>sans douleur</span>
       <span><i style="background:var(--watch)"></i><i style="background:var(--alert)"></i><i style="background:var(--crit)"></i>légère → forte</span>
@@ -399,8 +399,11 @@ footer.bot a{color:var(--accent)}
         l'humidité relative : à 80 % d'humidité, l'air de novembre à 5 °C n'a rien de lourd, celui d'août à 28 °C
         est étouffant — le point de rosée fait la différence que l'humidité relative masque. Au-delà de 16 °C on
         commence à le ressentir, au-delà de 20 °C c'est oppressant. Le potentiel orageux vient du <em>CAPE</em>,
-        l'énergie convective disponible, indice standard de l'instabilité de l'atmosphère. Les deux sont
-        enregistrés chaque jour et testés comme la pression. Rien à saisir : ils sont mesurés pour toi.</p>
+        l'énergie convective disponible, indice standard de l'instabilité de l'atmosphère. Ces repères
+        physiologiques servent de <em>plancher</em> : au-dessus, les seuils d'affichage se calent sur ton
+        climat, sinon un été toulousain serait signalé en entier et un hiver islandais ne le serait jamais.
+        Les deux sont enregistrés chaque jour et testés comme la pression. Rien à saisir : ils sont mesurés
+        pour toi.</p>
         <p><strong>Le décalage.</strong> Chaque symptôme est testé contre la chute du jour même (J), de la veille (J−1)
         et de l'avant-veille (J−2) : si le déclencheur est une chute, la douleur peut la suivre de plusieurs heures.</p>
         <p><strong>Le test.</strong> Test de permutation (2 000 rééchantillonnages) comparant la chute moyenne des jours
@@ -606,14 +609,43 @@ const RANK_TINT   = [0, 0, .62, 1];
 /* « Temps lourd ». Le point de rosée est la mesure physique de la lourdeur de
    l'air : au-delà de 16 °C on la ressent, au-delà de 20 °C elle est oppressante.
    L'humidité relative, elle, ne dit rien de la lourdeur sans la température. */
-function mugginessRank(dew){
-  if (dew === null || dew === undefined) return 0;
-  return dew >= 20 ? 3 : dew >= 17 ? 2 : dew >= 14 ? 1 : 0;
+/* Ces deux-là ne se calibrent pas comme la pression. Une variation de 3 hPa n'a
+   pas de sens en soi — elle n'existe que rapportée au ciel du lieu. Un point de
+   rosée de 20 °C, si : l'air est oppressant à Reykjavik comme à Singapour, et
+   un percentile pur y déclarerait « oppressants » les 12 °C islandais, qui sont
+   de l'air sec. À l'inverse, des seuils absolus classent chaque journée
+   singapourienne au rang maximal — le marqueur reste allumé et n'apprend rien.
+   D'où le compromis : le plancher dit ce que le corps ressent, le quantile dit
+   ce qui est notable ici. La calibration ne peut que relever la barre. */
+const FLOOR_MUG   = [14, 17, 20];        // °C de point de rosée
+const FLOOR_STORM = [300, 800, 1500];    // J/kg de CAPE
+/* Les mêmes quantiles que la pression, pour que « notable / marqué / fort » veuille
+   dire la même chose pour les trois facteurs. Plus sélectif a été essayé et rejeté :
+   le CAPE est une loi à longue queue, son 90e percentile parisien monte à 1395 J/kg
+   et vidait la ligne orage de toute la fenêtre affichée. */
+const Q_METEO = [0.80, 0.92, 0.975];
+
+function calibrateMeteo(key, floors, dec){
+  const v = [];
+  for (const k in state.daily){
+    const x = state.daily[k][key];
+    if (x !== null && x !== undefined && isFinite(x)) v.push(x);
+  }
+  if (v.length < 60) return { t: floors.slice(), cal: false, n: v.length };
+  v.sort((a, b) => a - b);
+  const t = Q_METEO.map((q, i) => +Math.max(floors[i], quantile(v, q)).toFixed(dec));
+  for (let i = 1; i < 3; i++)
+    if (t[i] <= t[i-1]) t[i] = +(t[i-1] + (floors[i] - floors[i-1])).toFixed(dec);
+  return { t: t, cal: true, n: v.length };
 }
-function stormRank(cape){
-  if (cape === null || cape === undefined) return 0;
-  return cape >= 1500 ? 3 : cape >= 800 ? 2 : cape >= 300 ? 1 : 0;
+function thrMug(){ return (state.thrMug && state.thrMug.t) || FLOOR_MUG; }
+function thrStorm(){ return (state.thrStorm && state.thrStorm.t) || FLOOR_STORM; }
+function rankBy(v, t){
+  if (v === null || v === undefined || !isFinite(v)) return 0;
+  return v >= t[2] ? 3 : v >= t[1] ? 2 : v >= t[0] ? 1 : 0;
 }
+function mugginessRank(dew){ return rankBy(dew, thrMug()); }
+function stormRank(cape){ return rankBy(cape, thrStorm()); }
 
 /* =======================================================================
    DATES
@@ -1658,6 +1690,8 @@ function importJson(file){
    ======================================================================= */
 function renderAll(){
   state.thr = calibrate();          // seuils recalés à chaque rendu sur l'historique disponible
+  state.thrMug   = calibrateMeteo("dewmax",  FLOOR_MUG, 1);
+  state.thrStorm = calibrateMeteo("capemax", FLOOR_STORM, 0);
   renderLegend();
   renderVerdict(); drawChart(); renderStreak(); renderAnalysis();
   const nJ = Object.keys(state.journal).length;
@@ -1740,13 +1774,23 @@ function renderLegend(){
   set("lgT1", t[0] + " à " + t[1] + " hPa");
   set("lgT2", t[1] + " à " + t[2]);
   set("lgT3", "plus de " + t[2]);
+  const tm = thrMug(), ts = thrStorm();
+  set("lgMug", tm[0] + " → " + tm[2] + " °C");
+  set("lgStorm", ts[0] + " → " + ts[2] + " J/kg");
   const note = document.getElementById("thrNote");
-  if (note) note.textContent = c.cal
+  /* La lourdeur et l'orage se calibrent aussi, mais plus haut et jamais sous leur
+     plancher physiologique : le dire, sinon les chiffres de la légende paraissent
+     sortis de nulle part. */
+  const meteoNote = (state.thrStorm && state.thrStorm.cal)
+    ? " L'orage et la lourdeur se calibrent dans les mêmes proportions, sans jamais descendre sous leur "
+      + "seuil physiologique : " + ts.join(" / ") + " J/kg et " + tm.join(" / ") + " °C."
+    : "";
+  if (note) note.textContent = (c.cal
     ? "Seuils calibrés sur " + c.n + " jours de données à " + state.loc.label + " : " + t[0] + " / " + t[1]
       + " / " + t[2] + " hPa, soit le cinquième des journées les plus agitées, puis les 8 %, puis les "
       + "2,5 % les plus raides. Recalculés à chaque ouverture, ils suivent les saisons."
     : "Seuils provisoires (" + t.join(" / ") + " hPa) — ils se recaleront sur ton climat local dès "
-      + Math.max(0, 60 - (c.n || 0)) + " jours de données de plus.";
+      + Math.max(0, 60 - (c.n || 0)) + " jours de données de plus.") + meteoNote;
 }
 
 function setTheme(t){
