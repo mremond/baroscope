@@ -1529,7 +1529,7 @@ function download(name, text, mime){
 function exportJson(){
   download("baroscope-sauvegarde-" + todayKey() + ".json",
     JSON.stringify({ v: 2, exported: new Date().toISOString(), loc: state.loc,
-                     journal: state.journal, byLoc: state.byLoc }, null, 1),
+                     journal: state.journal, byLoc: state.byLoc, locs: state.locs }, null, 1),
     "application/json");
 }
 function exportCsv(){
@@ -1555,6 +1555,15 @@ function exportCsv(){
   });
   download("baroscope-analyse-" + todayKey() + ".csv", lines.join("\n"), "text/csv;charset=utf-8");
 }
+/* Une sauvegarde peut venir d'une autre machine : son lieu n'est repris que s'il
+   est complet. Un fuseau absent décalerait les journées sans le dire, un fuseau
+   invalide ferait échouer les formateurs et donc tout le rendu. */
+function validLoc(l){
+  if (!l || typeof l.lat !== "number" || typeof l.lon !== "number"
+         || typeof l.tz !== "string") return null;
+  try { new Intl.DateTimeFormat("en-CA", { timeZone: l.tz }); } catch(e){ return null; }
+  return l;
+}
 function importJson(file){
   const fr = new FileReader();
   fr.onload = () => {
@@ -1573,12 +1582,25 @@ function importJson(file){
         if (!state.byLoc[id]) state.byLoc[id] = {};
         Object.assign(state.byLoc[id], j.daily);
       }
+      /* L'annuaire suit l'historique : sans lui, les journées passées ailleurs
+         s'afficheraient en coordonnées brutes au lieu du nom de la ville. */
+      if (j.locs){
+        if (!state.locs) state.locs = {};
+        Object.assign(state.locs, j.locs);
+      }
       migrateStorage();
-      useLocation(state.loc, true);
+      const restored = validLoc(j.loc) || validLoc(j.cfg);
+      const moved = restored && locId(restored) !== locId(state.loc);
+      useLocation(restored || state.loc, true);
       LS.set(K_JOURNAL, state.journal);
       const after = Object.keys(state.journal).length;
+      if (moved) state.cursor = todayKey();
       loadDraft(); renderAll();
-      alert("Restauration réussie — " + (after - before) + " jour(s) ajouté(s), " + after + " au total.");
+      /* Les heures en mémoire sont celles de l'ancien lieu : elles ne valent
+         plus rien ici, et la prévision doit être refaite. */
+      if (moved) refresh();
+      alert("Restauration réussie — " + (after - before) + " jour(s) ajouté(s), " + after + " au total."
+            + (moved ? "\nLieu repris de la sauvegarde : " + (restored.label || locId(restored)) + "." : ""));
     } catch(e){
       alert("Impossible de lire ce fichier : " + e.message);
     }
