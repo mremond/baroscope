@@ -333,7 +333,9 @@ footer.bot a{color:var(--accent)}
       <span class="lg-title">Survole la courbe pour lire les valeurs à l'heure exacte.</span>
       <span class="lg-title">Lourdeur —</span>
       <span><i style="background:var(--up);opacity:.3"></i><i style="background:var(--up);opacity:.6"></i><i style="background:var(--up);opacity:.92"></i>point de rosée 14 → 20 °C</span>
-      <span><i style="background:var(--crit);border-radius:50%;width:9px;height:9px"></i>risque d'orage</span>
+      <span><i style="background:var(--crit);border-radius:50%;width:5px;height:5px;opacity:.45"></i><i
+        style="background:var(--crit);border-radius:50%;width:8px;height:8px;opacity:.85;margin-left:0"></i><i
+        style="background:var(--crit);border-radius:50%;width:11px;height:11px;margin-left:0"></i>énergie orageuse 300 → 1500 J/kg</span>
       <span class="lg-title">Journal —</span>
       <span><i style="background:var(--ok);opacity:.3"></i>sans douleur</span>
       <span><i style="background:var(--watch)"></i><i style="background:var(--alert)"></i><i style="background:var(--crit)"></i>légère → forte</span>
@@ -907,8 +909,13 @@ function drawChart(){
       const mug = dm ? mugginessRank(dm.dewmax) : 0;
       add(el("rect", { x: x0 + .6, y: y + 1.2, width: Math.max(1, x1 - x0 - 1.2), height: rowH - 2.6,
                        rx: 2, fill: css("--up"), opacity: [.07, .3, .6, .92][mug] }));
-      if (dm && stormRank(dm.capemax) >= 2)
-        add(el("circle", { cx: (x0 + x1) / 2, cy: y + rowH / 2, r: 2.6, fill: css("--crit") }));
+      /* Trois rangs plutôt qu'un booléen : à 700 J/kg le potentiel convectif est
+         réel, et l'effacer faisait passer la journée pour calme. Le rayon suit le
+         rang, l'opacité sépare le potentiel du probable. */
+      const storm = dm ? stormRank(dm.capemax) : 0;
+      if (storm)
+        add(el("circle", { cx: (x0 + x1) / 2, cy: y + rowH / 2, r: [0, 1.7, 2.6, 3.5][storm],
+                           fill: css("--crit"), opacity: [0, .45, .85, 1][storm] }));
     }
 
     // strip des symptômes
