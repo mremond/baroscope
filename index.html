@@ -1139,13 +1139,39 @@ function renderVerdict(){
   const today = days.find(d => d.k === tk) || days[0];
   const RANKNAME = ["Calme","Variation notable","Variation marquée","Variation forte"];
 
-  pill.className = "pill " + (today.rank === 0 ? "lv-ok"
+  /* Le verdict couvre les trois hypothèses pré-spécifiées, pas la seule pression :
+     annoncer « rien de marqué » la veille d'une journée à 1070 J/kg contredisait le
+     barogramme, qui la signale. La pression garde le titre quand elle bouge — c'est
+     le facteur le mieux documenté — et les deux autres suivent dans le sous-titre. */
+  const meteo = [];
+  for (let i = 0; i <= 7; i++){
+    const k = shiftKey(tk, i), dm = state.daily[k];
+    if (dm) meteo.push({ k, cape: dm.capemax, dew: dm.dewmax,
+                         storm: stormRank(dm.capemax), mug: mugginessRank(dm.dewmax) });
+  }
+  const mToday = meteo.find(d => d.k === tk) || {};
+  const firstStorm = meteo.find(d => d.storm >= 2);
+  const firstMug   = meteo.find(d => d.mug >= 3);
+  const when = k => k === tk ? "aujourd'hui" : humanDay(k);
+  const stormTxt = d => "potentiel orageux " + (d.storm === 3 ? "fort" : "marqué") + " "
+    + when(d.k) + " (" + Math.round(d.cape) + " J/kg)";
+  const mugTxt = d => "air lourd " + when(d.k) + " (point de rosée " + d.dew.toFixed(1) + " °C)";
+
+  /* « Calme » tout court mentirait un jour d'orage : la pastille dit alors de quoi
+     elle parle, et quitte le vert. */
+  const stormToday = mToday.storm >= 2;
+  pill.className = "pill " + (today.rank === 0 ? (stormToday ? "lv-watch" : "lv-ok")
     : today.up ? "lv-up" : today.L.cls);
   pill.innerHTML = '<span class="dot"></span>' +
-    (today.k === tk ? "Aujourd'hui" : shortDay(today.k)) + ' · ' + RANKNAME[today.rank] +
-    (today.rank ? (today.up ? " (hausse)" : " (baisse)") : "");
+    (today.k === tk ? "Aujourd'hui" : shortDay(today.k)) + ' · ' +
+    (today.rank ? RANKNAME[today.rank] + (today.up ? " (hausse)" : " (baisse)")
+                : (stormToday ? "Pression calme" : "Calme")) +
+    (stormToday ? " · orage" : "");
 
   const magTxt = d => (d.dom > 0 ? "+" : "") + d.dom.toFixed(1);
+  const pressionCalme = "la variation la plus ample vaut " + magTxt(worst)
+    + " hPa sur 24 h glissantes (" + windowTxt(worst.from, worst.to)
+    + "), sous le seuil d'un passage de front net.";
   if (first){
     /* On nomme la FENÊTRE, pas le jour. Une chute de ce soir 18 h à demain 18 h
        « appartient » à demain par convention, alors qu'elle commence aujourd'hui —
@@ -1158,12 +1184,24 @@ function renderVerdict(){
       + (startsToday ? "commence donc aujourd'hui" : "commence le " + humanDay(dayFmt.format(new Date(first.from))))
       + " et s'achève " + (dayFmt.format(new Date(first.to)) === shiftKey(tk,1) ? "demain" : "le " + humanDay(dayFmt.format(new Date(first.to))))
       + ". Sur 8 jours, la plus ample vaut " + magTxt(worst) + " hPa ("
-      + windowTxt(worst.from, worst.to) + ").";
+      + windowTxt(worst.from, worst.to) + ")."
+      + (firstStorm || firstMug ? " À surveiller aussi : "
+         + [firstStorm && stormTxt(firstStorm), firstMug && mugTxt(firstMug)]
+           .filter(Boolean).join(" ; ") + "." : "");
+  } else if (firstStorm || firstMug){
+    /* La pression ne bouge pas, mais la journée n'est pas calme pour autant :
+       l'orage et la lourdeur sont des mécanismes distincts, pas des symptômes
+       d'un front. Le titre nomme celui qui se présente. */
+    head.innerHTML = firstStorm
+      ? 'Potentiel orageux ' + (firstStorm.storm === 3 ? 'fort' : 'marqué') + ' <em>' + when(firstStorm.k)
+        + '</em>, <span class="mono">' + Math.round(firstStorm.cape) + ' J/kg</span>.'
+      : 'Air lourd <em>' + when(firstMug.k) + '</em>, point de rosée <span class="mono">'
+        + firstMug.dew.toFixed(1) + ' °C</span>.';
+    lede.textContent = "Côté pression, rien de marqué : " + pressionCalme
+      + (firstStorm && firstMug ? " À surveiller aussi : " + mugTxt(firstMug) + "." : "");
   } else {
     head.innerHTML = 'Rien de marqué sur les 8 prochains jours.';
-    lede.textContent = "La variation la plus ample prévue vaut " + magTxt(worst)
-      + " hPa sur 24 h glissantes (" + windowTxt(worst.from, worst.to)
-      + "), sous le seuil d'un passage de front net.";
+    lede.textContent = "Ni chute de pression, ni orage, ni air lourd : " + pressionCalme;
   }
 
   const box = document.getElementById("upcoming");
