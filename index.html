@@ -1,0 +1,1787 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baroscope</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* ---------- tokens : clair par défaut ---------- */
+:root{
+  --bg:#E7EBEE;
+  --surface:#FBFCFD;
+  --surface-2:#F1F4F6;
+  --ink:#151A20;
+  --ink-2:#3D4854;
+  --muted:#697682;
+  --rule:#CDD6DD;
+  --rule-soft:#DFE6EB;
+  --accent:#5A3FA0;
+  --accent-soft:#E9E3F6;
+  --accent-line:#5A3FA0;
+  --future:#F3F0FA;
+  --ok:#2C7A62;
+  --ok-soft:#DCEDE7;
+  --watch:#7A6412;
+  --watch-soft:#FBF2D9;
+  --alert:#B25A0E;
+  --alert-soft:#F8DBBA;
+  --crit:#9E2B1E;
+  --crit-soft:#EFBEB4;
+  --up:#0F6076;
+  --up-soft:#CFE9F1;
+  --shadow:0 1px 2px rgba(21,26,32,.06), 0 8px 24px -12px rgba(21,26,32,.18);
+  --grid:#D6DEE4;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11151A;
+    --surface:#1A2027;
+    --surface-2:#212932;
+    --ink:#E7ECF1;
+    --ink-2:#BCC7D2;
+    --muted:#8D9AA7;
+    --rule:#2E3945;
+    --rule-soft:#252E38;
+    --accent:#AE93EE;
+    --accent-soft:#2A2440;
+    --accent-line:#AE93EE;
+    --future:#1E1B2B;
+    --ok:#5FC0A0;
+    --ok-soft:#1B2E2A;
+    --watch:#DDBB5A;
+    --watch-soft:#252008;
+    --alert:#F59B4A;
+    --alert-soft:#3A2610;
+    --crit:#FF7D68;
+    --crit-soft:#56211A;
+    --up:#5CC6DF;
+    --up-soft:#0E323D;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.7);
+    --grid:#28323C;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151A;
+  --surface:#1A2027;
+  --surface-2:#212932;
+  --ink:#E7ECF1;
+  --ink-2:#BCC7D2;
+  --muted:#8D9AA7;
+  --rule:#2E3945;
+  --rule-soft:#252E38;
+  --accent:#AE93EE;
+  --accent-soft:#2A2440;
+  --accent-line:#AE93EE;
+  --future:#1E1B2B;
+  --ok:#5FC0A0;
+  --ok-soft:#1B2E2A;
+  --watch:#DDBB5A;
+  --watch-soft:#252008;
+  --alert:#F59B4A;
+  --alert-soft:#3A2610;
+  --crit:#FF7D68;
+  --crit-soft:#56211A;
+  --up:#5CC6DF;
+  --up-soft:#0E323D;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 28px -14px rgba(0,0,0,.7);
+  --grid:#28323C;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 22px 72px;display:flex;flex-direction:column;gap:22px}
+
+/* ---------- header ---------- */
+header.top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  padding-bottom:16px;border-bottom:1px solid var(--rule)}
+.brand h1{
+  font-family:"Instrument Serif",Georgia,serif;
+  font-size:42px;font-weight:400;line-height:1;margin:0;letter-spacing:.005em;
+}
+.brand .sub{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px;
+}
+.head-tools{display:flex;align-items:center;gap:8px}
+.linkbtn{font:inherit;color:var(--accent);text-decoration:underline;text-underline-offset:2px;
+  letter-spacing:inherit;text-transform:inherit}
+.linkbtn:hover{color:var(--ink)}
+.linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+.locbox{margin-top:12px;max-width:440px}
+.locbox input{width:100%;font:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--rule);
+  border-radius:7px;background:var(--surface);color:var(--ink)}
+.locbox input:focus-visible{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.locres{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+.locres button{text-align:left;padding:8px 12px;border-radius:6px;font-size:13.5px;
+  border:1px solid transparent;background:var(--surface)}
+.locres button:hover,.locres button:focus-visible{background:var(--surface-2);border-color:var(--rule)}
+.locres .meta{color:var(--muted);font-size:12px}
+.locres .msg{padding:8px 2px;font-size:13px;color:var(--muted)}
+
+/* ---------- primitifs ---------- */
+.card{background:var(--surface);border:1px solid var(--rule-soft);border-radius:10px;box-shadow:var(--shadow)}
+.card-pad{padding:20px 22px}
+h2.sec{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 14px;display:flex;align-items:center;gap:10px;
+}
+h2.sec::after{content:"";flex:1;height:1px;background:var(--rule-soft)}
+.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.xsmall{font-size:12px}
+
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:none}
+.btn{
+  border:1px solid var(--rule);background:var(--surface);border-radius:7px;padding:8px 14px;
+  font-size:13.5px;font-weight:500;transition:background .12s,border-color .12s;
+}
+.btn:hover{background:var(--surface-2);border-color:var(--muted)}
+.btn:focus-visible,.seg button:focus-visible,.icon-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+:root[data-theme="dark"] .btn.primary,
+:root:not([data-theme="light"]) .btn.primary{color:#14101F}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .btn.primary{color:#fff}}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{border-style:dashed}
+.icon-btn{border:1px solid var(--rule);border-radius:7px;width:34px;height:34px;display:grid;place-items:center;font-size:14px}
+.icon-btn:hover{background:var(--surface-2)}
+
+.pill{
+  display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:4px 11px 4px 9px;
+  font-size:12px;font-weight:600;letter-spacing:.02em;border:1px solid transparent;
+}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.lv-ok{color:var(--ok);background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 25%,transparent)}
+.lv-watch{color:var(--watch);background:var(--watch-soft);border-color:color-mix(in srgb,var(--watch) 25%,transparent)}
+.lv-alert{color:var(--alert);background:var(--alert-soft);border-color:color-mix(in srgb,var(--alert) 25%,transparent)}
+.lv-crit{color:var(--crit);background:var(--crit-soft);border-color:color-mix(in srgb,var(--crit) 25%,transparent)}
+.lv-up{color:var(--up);background:var(--up-soft);border-color:color-mix(in srgb,var(--up) 25%,transparent)}
+
+/* ---------- verdict ---------- */
+.verdict{display:grid;grid-template-columns:1.35fr 1fr;gap:0;overflow:hidden}
+@media (max-width:820px){.verdict{grid-template-columns:1fr}}
+.verdict .left{padding:24px 26px;border-right:1px solid var(--rule-soft)}
+@media (max-width:820px){.verdict .left{border-right:none;border-bottom:1px solid var(--rule-soft)}}
+.verdict .headline{
+  font-family:"Instrument Serif",Georgia,serif;font-size:30px;line-height:1.22;margin:12px 0 6px;
+  text-wrap:balance;
+}
+.verdict .headline .mono{font-size:.82em;font-weight:500;letter-spacing:-.01em}
+.verdict .headline em{font-style:italic}
+.verdict .lede{color:var(--ink-2);font-size:14px;max-width:52ch}
+.verdict .right{padding:20px 22px;background:var(--surface-2);display:flex;flex-direction:column;gap:2px}
+.upcoming{display:flex;flex-direction:column}
+.up-row{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center;
+  padding:7px 8px;margin:0 -8px;border-radius:6px;
+  border-bottom:1px solid var(--rule-soft);font-size:13px;cursor:default;
+  transition:background .12s}
+.up-row:hover,.up-row:focus-visible{background:var(--surface);border-bottom-color:transparent}
+.up-row:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+/* Hauteur figée à deux lignes : ce texte change à chaque survol, et une boîte
+   élastique ferait sauter toute la colonne sous le curseur. */
+#upDetail{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--rule-soft);
+  color:var(--ink-2);line-height:1.45;height:calc(2.9em + 11px);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.up-row:last-child{border-bottom:none}
+.up-row .day{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted);text-transform:capitalize}
+.up-row .bar{height:6px;border-radius:3px;background:var(--rule-soft);position:relative;overflow:hidden}
+.up-row .bar i{position:absolute;inset:0 auto 0 0;border-radius:3px;display:block}
+.up-row .bar.bidir::before{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;
+  background:var(--muted);opacity:.5}
+.up-row .bar.bidir i{top:0;bottom:0;height:auto}
+.up-row .val{font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-weight:500;white-space:nowrap}
+
+/* ---------- chart ---------- */
+.chart-scroll{overflow-x:auto;padding:4px 0 0}
+.chart-scroll svg{display:block;min-width:760px;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule-soft);
+  font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:15px;height:11px;border-radius:2px;display:inline-block;box-sizing:border-box;flex:none}
+.legend i + i{margin-left:-4px}
+.legend .lg-title{font-weight:600;color:var(--ink-2);margin-left:4px}
+
+/* ---------- journal ---------- */
+.log-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.datenav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:100%}
+.datenav .cur{font-family:"IBM Plex Mono",monospace;font-size:13.5px;font-weight:500;
+  flex:1 1 150px;min-width:0;text-align:center}
+.datenav .cur::first-letter{text-transform:uppercase}
+.grid-sym{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:12.5px;font-weight:600;letter-spacing:.01em;color:var(--ink-2)}
+.seg{display:flex;border:1px solid var(--rule);border-radius:7px;overflow:hidden}
+.seg button{flex:1;padding:7px 4px;font-size:12.5px;text-align:center;border-right:1px solid var(--rule);
+  background:var(--surface);color:var(--muted);transition:background .12s,color .12s}
+.seg button:last-child{border-right:none}
+.seg button:hover{background:var(--surface-2)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff;font-weight:600}
+:root[data-theme="dark"] .seg button[aria-pressed="true"]{color:#14101F}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{color:#14101F}}
+.seg.sev button[aria-pressed="true"][data-v="1"]{background:var(--watch)}
+.seg.sev button[aria-pressed="true"][data-v="2"]{background:var(--alert)}
+.seg.sev button[aria-pressed="true"][data-v="3"]{background:var(--crit)}
+.divider{height:1px;background:var(--rule-soft);margin:20px 0 16px}
+textarea{
+  width:100%;font:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--rule);border-radius:7px;
+  background:var(--surface);color:var(--ink);resize:vertical;min-height:56px;
+}
+textarea:focus-visible{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+.log-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.saved-note{font-size:12.5px;color:var(--ok);opacity:0;transition:opacity .2s}
+.saved-note.on{opacity:1}
+
+/* ---------- adhérence ---------- */
+.streak{display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex:1 1 280px;min-width:0}
+.dots{display:flex;gap:3px;flex:1 1 240px;min-width:0}
+.dots i{flex:1 1 auto;min-width:4px;max-width:9px;height:20px;border-radius:2px;background:var(--rule-soft);display:block}
+.dots i.on{background:var(--ok)}
+.dots i.pain{background:var(--alert)}
+.dots i.today{outline:1.5px solid var(--accent);outline-offset:1px}
+
+/* ---------- analyse ---------- */
+table.an{width:100%;border-collapse:collapse;font-size:13px}
+table.an th,table.an td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--rule-soft)}
+table.an th{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);font-weight:600}
+td.fam-head{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:600;background:var(--surface-2);padding-top:12px!important;padding-bottom:8px!important}
+table.an td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+.progress{height:8px;border-radius:4px;background:var(--rule-soft);overflow:hidden;margin:12px 0 8px}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:4px;transition:width .4s}
+.notice{
+  border-left:3px solid var(--accent);background:var(--accent-soft);padding:13px 16px;border-radius:0 7px 7px 0;
+  font-size:13.5px;color:var(--ink-2);
+}
+.notice strong{color:var(--ink)}
+.warnbox{border-left-color:var(--watch);background:var(--watch-soft)}
+.errbox{border-left-color:var(--crit);background:var(--crit-soft)}
+details.method{margin-top:16px;border-top:1px solid var(--rule-soft);padding-top:14px}
+details.method summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:500}
+details.method summary:hover{color:var(--ink)}
+details.method .body{margin-top:12px;font-size:13.5px;color:var(--ink-2);display:flex;flex-direction:column;gap:10px;max-width:70ch}
+details.method code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+
+footer.bot{border-top:1px solid var(--rule);padding-top:18px;font-size:12.5px;color:var(--muted);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer.bot a{color:var(--accent)}
+.row-tools{display:flex;gap:9px;flex-wrap:wrap}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <h1>Baroscope</h1>
+      <div class="sub"><span id="locLabel">—</span> · <button class="linkbtn" id="locBtn">changer de lieu</button></div>
+      <div class="locbox" id="locBox" hidden>
+        <input type="search" id="locQ" autocomplete="off" spellcheck="false"
+               placeholder="Ville, commune ou code postal — ex. Lyon, Brest, 33000">
+        <div class="locres" id="locRes"></div>
+      </div>
+    </div>
+    <div class="head-tools">
+      <span id="fetchPill" class="pill lv-watch"><span class="dot"></span>Chargement…</span>
+      <button class="icon-btn" id="themeBtn" title="Basculer clair / sombre" aria-label="Basculer clair / sombre">◐</button>
+    </div>
+  </header>
+
+  <!-- VERDICT -->
+  <section class="card verdict" id="verdict">
+    <div class="left">
+      <span class="pill lv-ok" id="vPill"><span class="dot"></span>—</span>
+      <div class="headline" id="vHead">Lecture des données…</div>
+      <div class="lede" id="vLede"></div>
+    </div>
+    <div class="right">
+      <h2 class="sec" style="margin-bottom:4px">Variation max sur 24 h</h2>
+      <p class="xsmall muted" style="margin:0 0 10px">Fenêtre glissante <em>s'achevant</em> ce jour-là —
+        elle peut donc commencer la veille.</p>
+      <div class="upcoming" id="upcoming"></div>
+      <p class="xsmall mono" id="upDetail" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <!-- BAROGRAMME -->
+  <section class="card card-pad">
+    <h2 class="sec">Barogramme · 21 jours passés → 16 jours prévus</h2>
+    <p class="xsmall muted" id="thrNote" style="margin:-6px 0 12px"></p>
+    <div class="chart-scroll"><svg id="chart" role="img" aria-label="Courbe de pression atmosphérique et journal des douleurs"></svg></div>
+    <div class="legend">
+      <span><i style="background:var(--accent-line)"></i>Pression</span>
+      <span><i style="background:var(--future);border:1px solid var(--rule)"></i>Prévision</span>
+      <span class="lg-title">Baisse /24 h, bandeau en haut —</span>
+      <span><i style="background:var(--watch-soft);border-top:2px solid var(--watch)"></i><span id="lgT1">—</span></span>
+      <span><i style="background:var(--alert-soft);border-top:3px solid var(--alert)"></i><span id="lgT2">—</span></span>
+      <span><i style="background:var(--crit-soft);border-top:5px solid var(--crit)"></i><span id="lgT3">—</span></span>
+      <span class="lg-title">Hausse, bandeau en bas —</span>
+      <span><i style="background:var(--up-soft);border-bottom:3px solid var(--up)"></i>mêmes seuils</span>
+      <span class="lg-title">Survole la courbe pour lire les valeurs à l'heure exacte.</span>
+      <span class="lg-title">Lourdeur —</span>
+      <span><i style="background:var(--up);opacity:.3"></i><i style="background:var(--up);opacity:.6"></i><i style="background:var(--up);opacity:.92"></i>point de rosée 14 → 20 °C</span>
+      <span><i style="background:var(--crit);border-radius:50%;width:9px;height:9px"></i>risque d'orage</span>
+      <span class="lg-title">Journal —</span>
+      <span><i style="background:var(--ok);opacity:.3"></i>sans douleur</span>
+      <span><i style="background:var(--watch)"></i><i style="background:var(--alert)"></i><i style="background:var(--crit)"></i>légère → forte</span>
+    </div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section class="card card-pad">
+    <h2 class="sec">Journal du jour</h2>
+    <div class="log-head">
+      <div class="datenav">
+        <button class="icon-btn" id="dPrev" aria-label="Jour précédent">‹</button>
+        <span class="cur mono" id="dCur">—</span>
+        <button class="icon-btn" id="dNext" aria-label="Jour suivant">›</button>
+        <button class="btn" id="dToday">Aujourd'hui</button>
+      </div>
+      <div class="streak">
+        <div class="dots" id="streakDots" title="30 derniers jours"></div>
+        <span class="xsmall muted" id="streakTxt"></span>
+      </div>
+    </div>
+
+    <p class="xsmall" id="entryLoc" hidden style="margin:-6px 0 14px"></p>
+
+    <div class="grid-sym" id="symFields"></div>
+    <div class="divider"></div>
+    <div class="grid-sym" id="confFields"></div>
+
+    <div class="field" style="margin-top:16px">
+      <label for="note">Note libre <span class="muted" style="font-weight:400">(facultatif — contexte, horaire, ce qui a soulagé)</span></label>
+      <textarea id="note" placeholder="ex. réveil à 5 h avec l'oreille droite bouchée, passé vers midi"></textarea>
+    </div>
+
+    <div class="log-actions">
+      <button class="btn primary" id="saveBtn">Enregistrer</button>
+      <button class="btn ghost" id="noPainBtn">Journée sans douleur</button>
+      <button class="btn" id="clearBtn">Effacer ce jour</button>
+      <span class="saved-note" id="savedNote">Enregistré</span>
+    </div>
+
+    <div class="notice" style="margin-top:18px">
+      <strong>Renseigne aussi les bons jours.</strong> C'est la condition du calcul : sans jours sans douleur,
+      aucune corrélation n'est calculable. Le bouton « Journée sans douleur » est là pour ça — un clic, deux secondes.
+    </div>
+  </section>
+
+  <!-- ANALYSE -->
+  <section class="card card-pad">
+    <h2 class="sec">Corrélation</h2>
+    <div id="analysis"></div>
+    <details class="method">
+      <summary>Méthode et limites — à lire avant d'interpréter</summary>
+      <div class="body">
+        <p><strong>La mesure, dans les deux sens.</strong> Pour chaque jour on retient la <em>baisse maximale</em>
+        et la <em>hausse maximale</em> sur une fenêtre glissante de 24 h (en hPa). La baisse est l'hypothèse
+        principale : c'est elle que la littérature sur les céphalées documente le mieux. La hausse est
+        exploratoire mais pas décorative — pour l'oreille moyenne, le mécanisme est même inversé, la trompe
+        d'Eustache évacuant une surpression plus facilement qu'elle n'admet de l'air quand la pression
+        extérieure monte. Les deux sont testées séparément, et c'est ton journal qui tranchera.</p>
+        <p><strong>Le temps lourd et l'orage.</strong> La lourdeur se mesure par le <em>point de rosée</em>, pas par
+        l'humidité relative : à 80 % d'humidité, l'air de novembre à 5 °C n'a rien de lourd, celui d'août à 28 °C
+        est étouffant — le point de rosée fait la différence que l'humidité relative masque. Au-delà de 16 °C on
+        commence à le ressentir, au-delà de 20 °C c'est oppressant. Le potentiel orageux vient du <em>CAPE</em>,
+        l'énergie convective disponible, indice standard de l'instabilité de l'atmosphère. Les deux sont
+        enregistrés chaque jour et testés comme la pression. Rien à saisir : ils sont mesurés pour toi.</p>
+        <p><strong>Le décalage.</strong> Chaque symptôme est testé contre la chute du jour même (J), de la veille (J−1)
+        et de l'avant-veille (J−2) : si le déclencheur est une chute, la douleur peut la suivre de plusieurs heures.</p>
+        <p><strong>Le test.</strong> Test de permutation (2 000 rééchantillonnages) comparant la chute moyenne des jours
+        avec symptôme à celle des jours sans. Pas d'hypothèse de normalité, robuste sur petits effectifs.
+        <code>p</code> est la probabilité d'observer un écart au moins aussi grand si la pression n'y était pour rien.</p>
+        <p><strong>Tests multiples.</strong> 4 symptômes × 6 facteurs × 3 décalages = 72 tests.
+        À p &lt; 0,05, on s'attend à <strong>3,6 faux positifs</strong> par pure malchance, même si rien n'avait
+        d'effet. D'où la colonne <code>q</code> : la procédure de Benjamini-Hochberg convertit les p en taux de
+        fausses découvertes, et c'est elle qu'il faut lire. Elle s'applique séparément dans chaque famille, pour
+        que tes deux hypothèses formulées à l'avance — la pression, le temps lourd — ne soient pas pénalisées par
+        les pistes ouvertes après coup. Une hypothèse énoncée avant de voir les données vaut structurellement plus
+        qu'une régularité repérée après ; c'est ce que cette séparation préserve.
+        Un seul résultat isolé à p = 0,04 ne prouve rien. Ce qui compte : un effet qui <em>persiste</em> quand
+        les données s'accumulent, cohérent d'un décalage à l'autre, et d'une taille plausible.</p>
+        <p><strong>Ce que ça ne fait pas.</strong> Corrélation n'est pas causalité, et les facteurs de confusion sont
+        réels : le mauvais temps dégrade aussi le sommeil, réduit l'activité et change l'humeur. Les colonnes de
+        contexte servent au bloc « contrôle » sous le tableau, qui refait le test sur les seuls jours sans alcool
+        notable, sans mauvaise nuit, sans jeûne prolongé et sans déficit de caféine. Un effet qui disparaît là
+        n'était pas celui de la pression.</p>
+        <p><strong>Observer, pas interpréter.</strong> Chaque colonne enregistre un fait vérifiable au moment de la
+        saisie — un nombre de verres, un nombre de tasses — jamais un jugement du type « moins que d'habitude ».
+        Un comptage est objectif, ne demande aucune comparaison mentale, et ne dérive pas quand tes habitudes
+        changent sur six mois. L'écart à ton habitude, lui, se calcule ensuite : la médiane de tes 30 jours
+        précédents sert de référence, et c'est ce qui définit un jour de sevrage. Dans l'autre sens ce serait
+        perdu — d'un comptage on retrouve toujours l'écart, d'un écart jamais le comptage.</p>
+        <p><strong>Ce que vaut une « tasse ».</strong> Expresso et allongé sont équivalents ici : la caféine vient
+        de la mouture, pas du volume d'eau. Un allongé tiré sur la même dose en extrait à peine plus (~10 à 20 %),
+        et un américain — expresso allongé d'eau chaude après coup — en contient exactement autant, seulement plus
+        dilué. L'écart qui compte vraiment est ailleurs : un grand mug de filtre ou de cafetière approche le double
+        d'un expresso, parce qu'on y met bien plus de mouture. D'où la convention rappelée sous le champ.</p>
+        <p><strong>Pourquoi ces colonnes-là.</strong> Le saut de repas et le jeûne prolongé sont parmi les
+        déclencheurs de céphalée les mieux établis — assez pour que la classification internationale reconnaisse
+        une « céphalée de jeûne ». Le manque de caféine chez un consommateur régulier en est un autre, très fiable.
+        Le sucre en lui-même est bien moins documenté, et il porte un piège : l'envie de sucré fait partie des
+        signes qui <em>précèdent</em> une crise de plusieurs heures. Une corrélation sucre–douleur serait donc de
+        sens ambigu — la crise pourrait causer l'envie, et non l'inverse.</p>
+        <p><strong>Ce que dit la littérature, en bref.</strong> Elle est réelle mais faible et contradictoire.
+        Côté positif : une étude sur 7 054 passages aux urgences pour céphalée (Mukamal, <em>Neurology</em> 2009)
+        trouve une pression plus basse <strong>48 à 72 h avant</strong> la consultation — la température ayant un
+        effet plus net que la pression ; et une étude japonaise sur 28 patients suivis un an (Kimoto 2011) situe
+        le seuil autour d'une <strong>baisse de 5 hPa</strong> d'un jour au suivant, avec 64 % de patients
+        météosensibles. Côté négatif : une étude viennoise sur 238 patients et 90 jours d'agendas prospectifs
+        (Zebenholzer, <em>Cephalalgia</em> 2011) ne retrouve aucune association qui survive à l'analyse, et conclut
+        que la météo est surestimée face au cycle menstruel, au stress et à la tension. Une revue systématique de
+        2025 (14 études, 2 696 participants) confirme le tableau : des associations significatives ici et là,
+        une qualité méthodologique faible partout.</p>
+        <p><strong>Ce qu'il faut en retenir pour toi.</strong> Le décalage n'est pas établi — les estimations vont
+        du jour même à 72 h avant. C'est précisément pourquoi J, J−1 et J−2 sont testés au lieu d'en supposer un.
+        Et les seuils affichés sur le graphe ne servent qu'à l'œil : les calculs portent sur la valeur continue
+        en hPa, jamais sur ces catégories. Aucun de mes choix de seuil n'influence donc tes résultats.</p>
+        <p><strong>Source des données.</strong> Modèle ECMWF/DWD via l'API Open-Meteo, variable <code>pressure_msl</code>,
+        résolution horaire, réanalyse pour le passé et prévision jusqu'à 16 jours.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- DONNÉES -->
+  <section class="card card-pad">
+    <h2 class="sec">Tes données</h2>
+    <p class="small muted" style="margin:0 0 14px;max-width:66ch">
+      Tout est stocké dans ce navigateur, sur cette machine — rien n'est envoyé nulle part.
+      C'est aussi la fragilité : vider les données de navigation efface le journal.
+      Exporte une sauvegarde de temps en temps.
+    </p>
+    <div class="row-tools">
+      <button class="btn" id="expJson">Sauvegarde (.json)</button>
+      <button class="btn" id="expCsv">Export analyse (.csv)</button>
+      <button class="btn" id="impBtn">Restaurer une sauvegarde</button>
+      <input type="file" id="impFile" accept=".json,application/json" hidden>
+    </div>
+    <p class="xsmall muted mono" id="dataStat" style="margin:14px 0 0"></p>
+  </section>
+
+  <footer class="bot">
+    <span>Baroscope · données <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC-BY 4.0)</span>
+    <span class="mono" id="lastFetch"></span>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* =======================================================================
+   CONFIG
+   ======================================================================= */
+const DEFAULT_LOC = { lat: 48.857, lon: 2.352, tz: "Europe/Paris", label: "Paris" };
+function locId(l){ return l.lat.toFixed(3) + "," + l.lon.toFixed(3); }
+const PAST_DAYS = 92;        // maximum de l'API prévision
+const FORECAST_DAYS = 16;
+const CHART_PAST = 21;       // jours affichés à gauche du barogramme
+
+const SYMPTOMS = [
+  { key:"tete",     label:"Tête" },
+  { key:"dents",    label:"Dents" },
+  { key:"oreilles", label:"Oreilles" },
+  { key:"thorax",   label:"Intercostal" },
+];
+const SEV = ["Aucune","Légère","Modérée","Forte"];
+/* Contexte. Chaque ligne décrit LE JOUR LUI-MÊME, jamais « les 24 h avant la douleur » :
+   c'est le décalage (J, J−1, J−2) qui fait le lien, pas l'encodage. */
+const CONFOUNDERS = [
+  { key:"sommeil", label:"Sommeil",  opts:["Bon","Moyen","Mauvais"] },
+  { key:"stress",  label:"Stress",   opts:["Bas","Moyen","Élevé"] },
+  { key:"alcool",  label:"Alcool ce jour", opts:["Non","1–2 verres","3–4","5 et +"] },
+  { key:"repas",   label:"Repas",    opts:["Normaux","Un saut","Jeûne long"] },
+  { key:"cafeine", label:"Caféine (tasses)", opts:["0","1","2","3","4 et +"], hint: cafHint,
+    sub: "1 = un expresso ou un allongé · un mug de filtre = 2 · déca = 0" },
+  { key:"effort",  label:"Effort physique", opts:["Non","Oui"] },
+];
+
+/* Le sevrage de caféine se mesure par rapport à SA propre habitude, jamais dans
+   l'absolu : une tasse est un sevrage pour qui en boit quatre, et la normale pour
+   qui en boit une. On enregistre donc le comptage brut — objectif, sans jugement au
+   moment de la saisie, et qui ne dérive pas — puis on dérive l'écart après coup, à
+   partir de la médiane des 30 jours précédents. L'inverse serait irrattrapable :
+   d'un comptage on retrouve toujours l'écart, d'un écart jamais le comptage. */
+function cafBaseline(k){
+  const v = [];
+  for (let i = 1; i <= 30; i++){
+    const r = state.journal[shiftKey(k, -i)];
+    if (r && r.c && r.c.cafeine !== undefined && r.c.cafeine !== null) v.push(r.c.cafeine);
+  }
+  if (v.length < 7) return null;                   // socle trop mince pour parler d'habitude
+  v.sort((a, b) => a - b);
+  const m = v.length >> 1;
+  return v.length % 2 ? v[m] : (v[m-1] + v[m]) / 2;
+}
+function cafDeficit(k){
+  const r = state.journal[k], b = cafBaseline(k);
+  if (!r || !r.c || b === null) return null;
+  return (r.c.cafeine || 0) - b;                   // négatif = moins que d'habitude
+}
+function cafHint(){
+  const b = cafBaseline(state.cursor);
+  if (b === null) return "ton habitude se calculera après 7 jours renseignés";
+  /* Tant que la case n'a pas été touchée, le 0 par défaut n'est pas une donnée :
+     annoncer un sevrage à ce moment-là serait une alerte inventée. */
+  const stated = !!state.journal[state.cursor] || (draft && draft.touched && draft.touched.cafeine);
+  if (!stated) return "habitude : " + b + " par jour";
+  const d = (draft.c.cafeine || 0) - b;
+  return "habitude : " + b + " par jour"
+    + (d <= -2 ? " — sevrage probable ce jour" : d >= 2 ? " — nettement plus que d'habitude" : "");
+}
+
+/* Jours « troublés » : écartés du test de contrôle pour voir si l'effet de la
+   pression tient sans eux. */
+function isConfounded(k){
+  const r = state.journal[k];
+  if (!r || !r.c) return false;
+  const c = r.c, d = cafDeficit(k);
+  return (c.alcool  || 0) >= 2       // trois verres et plus
+      || (c.sommeil || 0) === 2      // mauvaise nuit
+      || (c.repas   || 0) === 2      // jeûne prolongé
+      || (d !== null && d <= -2);    // deux tasses de moins que son habitude
+}
+
+/* Seuils météo conventionnels de variation sur 24 h (hPa).
+   Ce sont des repères de passage de front, pas des seuils médicaux :
+   les tiens, s'ils existent, sortiront de tes propres données. */
+/* Les seuils ne sont PAS fixés d'avance. Un écart de 3 hPa/24 h est ordinaire à
+   Brest et remarquable à Nice ; il est banal en novembre et rare en juillet. Des
+   seuils absolus font donc crier au loup presque tous les jours quelque part.
+   On les calibre sur la distribution réelle du lieu : « notable » = le quart
+   supérieur de ce que fait vraiment ton ciel, « fort » = les 3 % les plus raides. */
+const FALLBACK_THR = [4, 7, 11];
+const LEVEL_ID = ["ok", "watch", "alert", "crit"];
+const LEVEL_LABEL = ["Calme", "Variation notable", "Variation marquée", "Variation forte"];
+
+function quantile(sorted, q){
+  const pos = (sorted.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+  return lo === hi ? sorted[lo] : sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo);
+}
+function calibrate(){
+  const mags = [];
+  for (const k in state.daily){
+    const d = state.daily[k];
+    if (d.drop24 !== null && d.drop24 !== undefined) mags.push(Math.abs(Math.min(0, d.drop24)));
+    if (d.rise24 !== null && d.rise24 !== undefined) mags.push(Math.max(0, d.rise24));
+  }
+  if (mags.length < 120) return { t: FALLBACK_THR, cal: false, n: mags.length >> 1 };
+  mags.sort((a, b) => a - b);
+  const t = [0.80, 0.92, 0.975].map(q => Math.max(1, +quantile(mags, q).toFixed(1)));
+  for (let i = 1; i < 3; i++) if (t[i] <= t[i-1]) t[i] = +(t[i-1] + 0.5).toFixed(1);
+  return { t: t, cal: true, n: mags.length >> 1 };
+}
+function thr(){ return (state.thr && state.thr.t) || FALLBACK_THR; }
+
+/* Rang 0 = calme, 1 = notable, 2 = marqué, 3 = fort — même échelle dans les deux sens. */
+function rankOf(mag){
+  if (mag === null || mag === undefined || !isFinite(mag)) return 0;
+  const t = thr();
+  return mag >= t[2] ? 3 : mag >= t[1] ? 2 : mag >= t[0] ? 1 : 0;
+}
+function levelOf(drop){
+  const r = rankOf(Math.abs(Math.min(0, drop || 0)));
+  return { id: LEVEL_ID[r], cls: "lv-" + LEVEL_ID[r], label: LEVEL_LABEL[r], rank: r };
+}
+const RANK_STRIPE = [0, 1.5, 3, 5];
+/* Le fond teinté est le canal bruyant : réservé à ce qui mérite d'être vu de loin.
+   Une variation seulement « notable » n'a droit qu'à son fin bandeau — sinon la
+   moitié du graphe est coloriée et plus rien ne ressort. */
+const RANK_TINT   = [0, 0, .62, 1];
+
+/* « Temps lourd ». Le point de rosée est la mesure physique de la lourdeur de
+   l'air : au-delà de 16 °C on la ressent, au-delà de 20 °C elle est oppressante.
+   L'humidité relative, elle, ne dit rien de la lourdeur sans la température. */
+function mugginessRank(dew){
+  if (dew === null || dew === undefined) return 0;
+  return dew >= 20 ? 3 : dew >= 17 ? 2 : dew >= 14 ? 1 : 0;
+}
+function stormRank(cape){
+  if (cape === null || cape === undefined) return 0;
+  return cape >= 1500 ? 3 : cape >= 800 ? 2 : cape >= 300 ? 1 : 0;
+}
+
+/* =======================================================================
+   DATES
+   ======================================================================= */
+/* Les formateurs dépendent du fuseau du lieu : ils sont reconstruits à chaque
+   changement de lieu plutôt que figés au chargement. */
+let dayFmt, humanFmt, shortFmt, stampFmt;
+function buildFormatters(tz){
+  dayFmt   = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year:"numeric", month:"2-digit", day:"2-digit" });
+  humanFmt = new Intl.DateTimeFormat("fr-FR", { timeZone: tz, weekday:"long", day:"numeric", month:"long" });
+  shortFmt = new Intl.DateTimeFormat("fr-FR", { timeZone: tz, weekday:"short", day:"numeric" });
+  stampFmt = new Intl.DateTimeFormat("fr-FR", { timeZone: tz, weekday:"short", day:"numeric",
+                                                hour:"2-digit", minute:"2-digit" });
+}
+buildFormatters(DEFAULT_LOC.tz);
+function windowTxt(from, to){
+  if (!from || !to) return "heures indisponibles";
+  return stampFmt.format(new Date(from)) + " → " + stampFmt.format(new Date(to));
+}
+/* Ligne de détail sous la liste : elle affiche par défaut l'épisode le plus ample,
+   et suit le survol ou le focus clavier. Toujours à l'écran, donc toujours trouvable. */
+let upDefaultTxt = "";
+function upDetailDefault(){
+  const e = document.getElementById("upDetail");
+  if (e) e.textContent = upDefaultTxt;
+}
+
+const todayKey = () => dayFmt.format(new Date());
+function keyToDate(k){ const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d, 12, 0, 0); }
+function shiftKey(k, n){ const d = keyToDate(k); d.setDate(d.getDate()+n); return dayFmt.format(d); }
+function humanDay(k){ return humanFmt.format(keyToDate(k)); }
+function shortDay(k){ return shortFmt.format(keyToDate(k)).replace(".",""); }
+
+/* =======================================================================
+   STOCKAGE
+   ======================================================================= */
+const LS = {
+  get(k, fb){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch(e){ return fb; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch(e){ return false; } },
+};
+const K_JOURNAL = "baroscope.journal.v1";
+const K_DAILY   = "baroscope.pressureDaily.v1";     // ancien format, mono-lieu
+const K_BYLOC   = "baroscope.pressureByLoc.v1";     // { locId: { date: métriques } }
+const K_LOC     = "baroscope.location.v1";
+const K_LOCS    = "baroscope.locations.v1";
+const K_THEME   = "baroscope.theme.v1";
+
+const state = {
+  journal: LS.get(K_JOURNAL, {}),   // date -> { s:{}, c:{}, note, ts, loc }
+  byLoc:   LS.get(K_BYLOC, null),   // locId -> { date -> métriques }
+  locs:    LS.get(K_LOCS, {}),      // locId -> { label, lat, lon, tz }
+  daily:   {},                      // raccourci vers byLoc[lieu courant]
+  loc:     LS.get(K_LOC, DEFAULT_LOC),
+  hourly:  [],
+  cursor:  null,
+  lastFetch: null,
+  online:  false,
+};
+
+/* Un historique de pression par lieu, et le lieu inscrit sur chaque journée du
+   journal. Sans ça, un séjour ailleurs mélangerait deux climats dans une même
+   série : les seuils seraient calculés sur un mélange, et surtout l'analyse
+   comparerait tes symptômes à la pression d'une ville où tu n'étais pas. */
+function useLocation(l, persist){
+  state.loc = l;
+  buildFormatters(l.tz);
+  if (!state.byLoc) state.byLoc = {};
+  if (!state.locs) state.locs = {};
+  const id = locId(l);
+  if (!state.byLoc[id]) state.byLoc[id] = {};
+  state.locs[id] = l;                       // annuaire : un identifiant reste lisible
+  state.daily = state.byLoc[id];
+  if (persist){ LS.set(K_LOC, l); LS.set(K_BYLOC, state.byLoc); LS.set(K_LOCS, state.locs); }
+}
+function locName(id){
+  return (state.locs && state.locs[id] && state.locs[id].label) || id || "lieu inconnu";
+}
+function dailyFor(entryLoc, dateKey){
+  const store = (state.byLoc && state.byLoc[entryLoc || locId(state.loc)]) || {};
+  return store[dateKey];
+}
+/* Reprise de l'ancien format : l'historique déjà accumulé est rattaché au lieu
+   d'origine, et les entrées sans lieu lui sont imputées. */
+function migrateStorage(){
+  if (!state.byLoc){
+    const old = LS.get(K_DAILY, null);
+    state.byLoc = {};
+    if (old && Object.keys(old).length) state.byLoc[locId(DEFAULT_LOC)] = old;
+    LS.set(K_BYLOC, state.byLoc);
+  }
+  const home = locId(DEFAULT_LOC);
+  if (!state.locs) state.locs = {};
+  if (!state.locs[home]){ state.locs[home] = DEFAULT_LOC; LS.set(K_LOCS, state.locs); }
+  let touched = false;
+  for (const k in state.journal)
+    if (!state.journal[k].loc){ state.journal[k].loc = home; touched = true; }
+  if (touched) LS.set(K_JOURNAL, state.journal);
+}
+migrateStorage();
+useLocation(state.loc, false);
+state.cursor = todayKey();
+
+/* =======================================================================
+   RÉCUPÉRATION DES DONNÉES
+   ======================================================================= */
+async function fetchPressure(){
+  const url = "https://api.open-meteo.com/v1/forecast"
+    + "?latitude=" + state.loc.lat + "&longitude=" + state.loc.lon
+    + "&hourly=pressure_msl,temperature_2m,dew_point_2m,cape"
+    + "&timezone=" + encodeURIComponent(state.loc.tz)
+    + "&past_days=" + PAST_DAYS
+    + "&forecast_days=" + FORECAST_DAYS;
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error("HTTP " + res.status);
+  const j = await res.json();
+  if (!j.hourly || !j.hourly.time) throw new Error("réponse inattendue");
+
+  const times = j.hourly.time, vals = j.hourly.pressure_msl;
+  const temps = j.hourly.temperature_2m || [];
+  const dews  = j.hourly.dew_point_2m || [];
+  const capes = j.hourly.cape || [];
+  const num = a => (a === null || a === undefined || !isFinite(a)) ? null : a;
+  const hourly = [];
+  for (let i = 0; i < times.length; i++){
+    const p = vals[i];
+    if (p === null || p === undefined) continue;
+    hourly.push({ t: new Date(times[i]), p: p,
+                  T: num(temps[i]), D: num(dews[i]), C: num(capes[i]),
+                  key: times[i].slice(0,10), idx: i });
+  }
+  // On conserve ce que l'API déclare sur le fuseau : ça se vérifie, ça ne se suppose pas.
+  state.tzMeta = { tz: j.timezone, abbr: j.timezone_abbreviation, off: j.utc_offset_seconds };
+  return hourly;
+}
+
+/* Deltas glissants puis agrégation par jour. */
+function computeDaily(hourly){
+  const n = hourly.length;
+  const d24 = new Array(n).fill(null);
+  const j24 = new Array(n).fill(-1);      // index du début de la fenêtre de 24 h
+  const d3  = new Array(n).fill(null);
+  const t24 = new Array(n).fill(null);
+
+  /* Les fenêtres sont repérées par HORODATAGE, pas par index. Compter 24 crans en
+     arrière serait faux deux fois par an — les jours de changement d'heure ont 23
+     ou 25 valeurs horaires en heure locale — et faux aussi dès qu'une valeur manque
+     dans la série. On cherche donc l'échantillon réellement situé 24 h plus tôt. */
+  const at = i => hourly[i].t.getTime();
+  const TOL = 30 * 60 * 1000;             // tolérance d'une demi-heure
+  let a24 = 0, a3 = 0;
+  for (let i = 0; i < n; i++){
+    const g24 = at(i) - 864e5, g3 = at(i) - 3 * 36e5;
+    while (a24 < i && at(a24) < g24 - TOL) a24++;
+    while (a3  < i && at(a3)  < g3  - TOL) a3++;
+    if (a24 < i && Math.abs(at(a24) - g24) <= TOL){
+      d24[i] = hourly[i].p - hourly[a24].p;
+      j24[i] = a24;
+      if (hourly[i].T !== null && hourly[a24].T !== null)
+        t24[i] = hourly[i].T - hourly[a24].T;
+    }
+    if (a3 < i && Math.abs(at(a3) - g3) <= TOL) d3[i] = hourly[i].p - hourly[a3].p;
+    hourly[i].d24 = d24[i];        // conservé pour la lecture au survol du graphe
+  }
+  const out = {};
+  for (let i = 0; i < n; i++){
+    const k = hourly[i].key;
+    if (!out[k]) out[k] = { min: Infinity, max: -Infinity, sum: 0, n: 0,
+                            drop24: null, rise24: null, rate3: 0,
+                            tsum: 0, tn: 0, tmin: Infinity, tmax: -Infinity, tvar24: 0,
+                            dmax: null, cmax: null };
+    const o = out[k];
+    o.min = Math.min(o.min, hourly[i].p);
+    o.max = Math.max(o.max, hourly[i].p);
+    o.sum += hourly[i].p; o.n++;
+    /* On mémorise aussi les BORNES de la fenêtre la plus raide : sans elles,
+       l'app annonce « demain » pour une chute qui commence ce soir, et l'œil,
+       qui voit la courbe plonger dès aujourd'hui, croit à une erreur. */
+    if (d24[i] !== null){
+      if (o.drop24 === null || d24[i] < o.drop24){
+        o.drop24 = d24[i]; o.dFrom = at(j24[i]); o.dTo = at(i);
+      }
+      if (o.rise24 === null || d24[i] > o.rise24){
+        o.rise24 = d24[i]; o.rFrom = at(j24[i]); o.rTo = at(i);
+      }
+    }
+    if (d3[i] !== null) o.rate3 = Math.max(o.rate3, Math.abs(d3[i]));
+    if (hourly[i].T !== null){
+      o.tsum += hourly[i].T; o.tn++;
+      o.tmin = Math.min(o.tmin, hourly[i].T);
+      o.tmax = Math.max(o.tmax, hourly[i].T);
+    }
+    if (t24[i] !== null) o.tvar24 = Math.max(o.tvar24, Math.abs(t24[i]));
+    /* Point de rosée = mesure physique de la « lourdeur » de l'air, bien meilleure
+       que l'humidité relative ; CAPE = énergie convective, l'indice standard du
+       potentiel orageux. On retient le maximum du jour pour l'un comme pour l'autre. */
+    if (hourly[i].D !== null) o.dmax = o.dmax === null ? hourly[i].D : Math.max(o.dmax, hourly[i].D);
+    if (hourly[i].C !== null) o.cmax = o.cmax === null ? hourly[i].C : Math.max(o.cmax, hourly[i].C);
+  }
+  const clean = {};
+  for (const k in out){
+    const o = out[k];
+    if (o.n < 20) continue;              // journée incomplète (premier/dernier jour) → écartée
+    clean[k] = {
+      min: +o.min.toFixed(1), max: +o.max.toFixed(1), mean: +(o.sum/o.n).toFixed(1),
+      drop24: o.drop24 === null ? null : +o.drop24.toFixed(1),
+      rise24: o.rise24 === null ? null : +o.rise24.toFixed(1),
+      rate3: +o.rate3.toFixed(1),
+      tmean:  o.tn ? +(o.tsum/o.tn).toFixed(1) : null,
+      tmin:   o.tn ? +o.tmin.toFixed(1) : null,
+      tmax:   o.tn ? +o.tmax.toFixed(1) : null,
+      tvar24: o.tn ? +o.tvar24.toFixed(1) : null,
+      dewmax:  o.dmax === null ? null : +o.dmax.toFixed(1),
+      capemax: o.cmax === null ? null : Math.round(o.cmax),
+      dFrom: o.dFrom ?? null, dTo: o.dTo ?? null,
+      rFrom: o.rFrom ?? null, rTo: o.rTo ?? null,
+    };
+  }
+  return clean;
+}
+
+/* =======================================================================
+   BAROGRAMME (SVG)
+   ======================================================================= */
+function drawChart(){
+  const svg = document.getElementById("chart");
+  svg.innerHTML = "";
+  if (!state.hourly.length){ return; }
+
+  const W = 1000, padL = 60, padR = 14, padT = 14;
+  const plotH = 210, gap = 12, rowH = 13;
+  const STRIP = [{ label: "Lourdeur" }].concat(SYMPTOMS);   // ligne météo + une par symptôme
+  const stripH = STRIP.length * rowH, axisH = 30, padB = 6;
+  const H = padT + plotH + gap + stripH + axisH + padB;
+  const plotW = W - padL - padR;
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+
+  // Bornes calées sur minuit local, pour que chaque bande de jour soit entière.
+  const tA = keyToDate(shiftKey(todayKey(), -CHART_PAST)); tA.setHours(0,0,0,0);
+  const tB = keyToDate(shiftKey(todayKey(), FORECAST_DAYS + 1)); tB.setHours(0,0,0,0);
+  const t0 = tA.getTime(), t1 = tB.getTime();
+  const pts = state.hourly.filter(h => h.t.getTime() >= t0 && h.t.getTime() <= t1);
+  if (!pts.length) return;
+
+  const ps = pts.map(h => h.p);
+  let lo = Math.min.apply(null, ps), hi = Math.max.apply(null, ps);
+  const padY = Math.max(2, (hi - lo) * 0.12);
+  lo = Math.floor((lo - padY) / 5) * 5; hi = Math.ceil((hi + padY) / 5) * 5;
+
+  const X = t => padL + ((t - t0) / (t1 - t0)) * plotW;
+  const Y = p => padT + plotH - ((p - lo) / (hi - lo)) * plotH;
+
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const add = e => { svg.appendChild(e); return e; };
+
+  const now = Date.now();
+
+  // fond « futur »
+  add(el("rect", { x: X(now), y: padT, width: Math.max(0, padL + plotW - X(now)), height: plotH,
+                   fill: css("--future") }));
+
+  // épisodes de variation + strip symptômes
+  const bandLabels = [], events = [];
+  const startK = shiftKey(todayKey(), -CHART_PAST);
+  for (let i = 0; i <= CHART_PAST + FORECAST_DAYS; i++){
+    const k = shiftKey(startK, i);
+    const a = keyToDate(k); a.setHours(0,0,0,0);
+    const b = keyToDate(shiftKey(k, 1)); b.setHours(0,0,0,0);   // +1 jour civil, pas +24 h
+    const x0 = Math.max(padL, X(a.getTime())), x1 = Math.min(padL + plotW, X(b.getTime()));
+    if (x1 <= x0) continue;
+
+    const dm = state.daily[k];
+
+    /* La bande couvre la FENÊTRE réelle de l'épisode, pas la case du calendrier.
+       Une chute de la veille au soir jusqu'au petit matin « appartient » au jour
+       suivant par convention — la peindre sur ce jour-là posait le bandeau sur un
+       segment où la courbe remonte déjà. Les bornes sont collectées ici, fusionnées
+       et dessinées plus bas, une fois pour toutes. */
+    if (dm){
+      const fall = dm.drop24 === null || dm.drop24 === undefined ? 0 : Math.min(0, dm.drop24);
+      const rise = dm.rise24 === null || dm.rise24 === undefined ? 0 : Math.max(0, dm.rise24);
+      const rF = rankOf(-fall), rR = rankOf(rise);
+      if (rF && dm.dFrom && dm.dTo)
+        events.push({ dir:-1, from: dm.dFrom, to: dm.dTo, mag: fall, rank: rF });
+      if (rR && dm.rFrom && dm.rTo)
+        events.push({ dir:+1, from: dm.rFrom, to: dm.rTo, mag: rise, rank: rR });
+    }
+
+    // ligne météo : lourdeur de l'air (point de rosée) + marqueur d'orage (CAPE)
+    {
+      const y = padT + plotH + gap;
+      const mug = dm ? mugginessRank(dm.dewmax) : 0;
+      add(el("rect", { x: x0 + .6, y: y + 1.2, width: Math.max(1, x1 - x0 - 1.2), height: rowH - 2.6,
+                       rx: 2, fill: css("--up"), opacity: [.07, .3, .6, .92][mug] }));
+      if (dm && stormRank(dm.capemax) >= 2)
+        add(el("circle", { cx: (x0 + x1) / 2, cy: y + rowH / 2, r: 2.6, fill: css("--crit") }));
+    }
+
+    // strip des symptômes
+    const rec = state.journal[k];
+    for (let s = 0; s < SYMPTOMS.length; s++){
+      const y = padT + plotH + gap + (s + 1) * rowH;
+      let fill = css("--rule-soft"), op = .55;
+      if (rec){
+        const v = rec.s[SYMPTOMS[s].key] || 0;
+        if (v === 0){ fill = css("--ok"); op = .28; }
+        else { fill = css(v === 1 ? "--watch" : v === 2 ? "--alert" : "--crit"); op = .92; }
+      }
+      add(el("rect", { x: x0 + .6, y: y + 1.2, width: Math.max(1, x1 - x0 - 1.2), height: rowH - 2.6,
+                       rx: 2, fill: fill, opacity: op }));
+    }
+  }
+
+  /* Fusion des fenêtres qui se chevauchent, direction par direction : deux jours
+     consécutifs décrivent souvent le même front, et les empiler noircirait le graphe. */
+  events.sort((a, b) => a.dir - b.dir || a.from - b.from);
+  const merged = [];
+  events.forEach(e => {
+    const last = merged[merged.length - 1];
+    if (last && last.dir === e.dir && e.from <= last.to){
+      last.to = Math.max(last.to, e.to);
+      if (Math.abs(e.mag) > Math.abs(last.mag)) last.mag = e.mag;
+      last.rank = Math.max(last.rank, e.rank);
+    } else merged.push(Object.assign({}, e));
+  });
+
+  merged.forEach(e => {
+    const xa = Math.max(padL, X(e.from)), xb = Math.min(padL + plotW, X(e.to));
+    if (xb <= xa) return;
+    const down = e.dir < 0;
+    const id = down ? levelOf(e.mag).id : "up";
+    const c = css("--" + id), soft = css("--" + id + "-soft"), h = RANK_STRIPE[e.rank];
+    if (RANK_TINT[e.rank])
+      add(el("rect", { x: xa, y: padT, width: xb - xa, height: plotH,
+                       fill: soft, opacity: RANK_TINT[e.rank] * .9 }));
+    add(el("rect", { x: xa, y: down ? padT : padT + plotH - h, width: xb - xa, height: h, fill: c }));
+    if (e.rank >= 2 && xb - xa > 14)
+      bandLabels.push({ x: (xa + xb) / 2, y: down ? padT + h + 11 : padT + plotH - h - 6,
+                        v: (down ? "" : "+") + Math.round(e.mag), c: c });
+  });
+
+  // grille horizontale + axe Y
+  for (let p = lo; p <= hi; p += 5){
+    const y = Y(p);
+    add(el("line", { x1: padL, y1: y, x2: padL + plotW, y2: y, stroke: css("--grid"), "stroke-width": 1 }));
+    const tx = add(el("text", { x: padL - 8, y: y + 3.5, "text-anchor": "end",
+      fill: css("--muted"), "font-size": 10, "font-family": "IBM Plex Mono, monospace" }));
+    tx.textContent = p;
+  }
+
+  // libellés des lignes de symptômes
+  for (let s = 0; s < STRIP.length; s++){
+    const y = padT + plotH + gap + s * rowH;
+    const tx = add(el("text", { x: padL - 8, y: y + rowH - 4, "text-anchor": "end",
+      fill: css(s === 0 ? "--up" : "--muted"), "font-size": 9,
+      "font-weight": s === 0 ? 600 : 400, "font-family": "IBM Plex Sans, sans-serif" }));
+    tx.textContent = STRIP[s].label;
+  }
+
+  // axe X : un tick par jour, libellé tous les 2 jours
+  for (let i = 0; i <= CHART_PAST + FORECAST_DAYS; i++){
+    const k = shiftKey(startK, i);
+    const a = keyToDate(k); a.setHours(0,0,0,0);
+    const x = X(a.getTime());
+    if (x < padL - 1 || x > padL + plotW + 1) continue;
+    add(el("line", { x1: x, y1: padT, x2: x, y2: padT + plotH, stroke: css("--grid"),
+                     "stroke-width": 1, opacity: .5 }));
+    if (i % 2 === 0){
+      const tx = add(el("text", { x: x, y: H - axisH + 22, "text-anchor": "middle",
+        fill: css("--muted"), "font-size": 9.5, "font-family": "IBM Plex Mono, monospace" }));
+      tx.textContent = shortDay(k);
+    }
+  }
+
+  // courbe : passé plein, futur pointillé
+  const past = pts.filter(h => h.t.getTime() <= now);
+  const fut  = pts.filter(h => h.t.getTime() >= now - 36e5);
+  const path = arr => arr.map((h,i) => (i ? "L" : "M") + X(h.t.getTime()).toFixed(1) + " " + Y(h.p).toFixed(1)).join(" ");
+  if (past.length > 1)
+    add(el("path", { d: path(past), fill: "none", stroke: css("--accent-line"), "stroke-width": 2,
+                     "stroke-linejoin": "round", "stroke-linecap": "round" }));
+  if (fut.length > 1)
+    add(el("path", { d: path(fut), fill: "none", stroke: css("--accent-line"), "stroke-width": 2,
+                     "stroke-dasharray": "3 3.5", opacity: .8, "stroke-linejoin": "round" }));
+
+  // marqueur « maintenant »
+  const xn = X(now);
+  if (xn >= padL && xn <= padL + plotW){
+    add(el("line", { x1: xn, y1: padT - 4, x2: xn, y2: padT + plotH, stroke: css("--ink"),
+                     "stroke-width": 1.2, "stroke-dasharray": "2 3" }));
+    const lb = add(el("text", { x: xn, y: padT - 7, "text-anchor": "middle", fill: css("--ink"),
+      "font-size": 9.5, "font-weight": 600, "font-family": "IBM Plex Mono, monospace" }));
+    lb.textContent = "maintenant";
+  }
+
+  // cadre
+  add(el("rect", { x: padL, y: padT, width: plotW, height: plotH, fill: "none",
+                   stroke: css("--rule"), "stroke-width": 1 }));
+
+  // valeurs chiffrées des chutes marquées, au-dessus de tout le reste
+  bandLabels.forEach(b => {
+    const t = add(el("text", { x: b.x, y: b.y, "text-anchor": "middle", fill: b.c,
+      "font-size": 9, "font-weight": 700, "font-family": "IBM Plex Mono, monospace",
+      stroke: css("--surface"), "stroke-width": 2.4, "paint-order": "stroke" }));
+    t.textContent = b.v;
+  });
+
+  /* Réticule de lecture, créé en dernier pour passer au-dessus de tout. Ce dont le
+     gestionnaire a besoin est rangé dans state.chart, en coordonnées SVG ; les
+     écouteurs sont posés une seule fois sur l'élément <svg>, qui survit aux redessins. */
+  const cross = add(el("g", { visibility: "hidden", "pointer-events": "none" }));
+  state.chart = { pts, X, Y, padL, padT, plotW, plotH, cross, el, css, add: e => cross.appendChild(e) };
+}
+
+/* ---------- lecture des valeurs au survol du barogramme ---------- */
+const READOUT = [
+  { k:"p",   label:"Pression",       unit:" hPa", dec:1 },
+  { k:"d24", label:"Δ sur 24 h",     unit:" hPa", dec:1, signed:true },
+  { k:"T",   label:"Température",    unit:" °C",  dec:1 },
+  { k:"D",   label:"Point de rosée", unit:" °C",  dec:1 },
+];
+function hideCross(){ if (state.chart && state.chart.cross) state.chart.cross.setAttribute("visibility","hidden"); }
+
+function chartReadout(ev){
+  const c = state.chart;
+  const svg = document.getElementById("chart");
+  if (!c || !svg || !c.pts.length) return;
+  const m = svg.getScreenCTM();
+  if (!m) return;
+  const sp = svg.createSVGPoint(); sp.x = ev.clientX; sp.y = ev.clientY;
+  const loc = sp.matrixTransform(m.inverse());
+  if (loc.x < c.padL || loc.x > c.padL + c.plotW || loc.y < c.padT || loc.y > c.padT + c.plotH){
+    hideCross(); return;
+  }
+
+  // point le plus proche en abscisse (recherche dichotomique sur une série triée)
+  let lo = 0, hi = c.pts.length - 1;
+  while (hi - lo > 1){
+    const mid = (lo + hi) >> 1;
+    if (c.X(c.pts[mid].t.getTime()) < loc.x) lo = mid; else hi = mid;
+  }
+  const pick = Math.abs(c.X(c.pts[lo].t.getTime()) - loc.x) <= Math.abs(c.X(c.pts[hi].t.getTime()) - loc.x)
+    ? c.pts[lo] : c.pts[hi];
+  const px = c.X(pick.t.getTime()), py = c.Y(pick.p);
+
+  const g = c.cross;
+  g.innerHTML = "";
+  g.setAttribute("visibility", "visible");
+  const ink = c.css("--ink"), muted = c.css("--muted"), surf = c.css("--surface"), rule = c.css("--rule");
+
+  c.add(c.el("line", { x1: px, y1: c.padT, x2: px, y2: c.padT + c.plotH,
+                       stroke: ink, "stroke-width": 1, opacity: .45 }));
+  c.add(c.el("circle", { cx: px, cy: py, r: 3.4, fill: c.css("--accent-line"),
+                         stroke: surf, "stroke-width": 1.6 }));
+
+  const lines = [{ l: stampFmt.format(pick.t), v: "", head: true }];
+  READOUT.forEach(r => {
+    const v = pick[r.k];
+    if (v === null || v === undefined || !isFinite(v)) return;
+    lines.push({ l: r.label, v: (r.signed && v > 0 ? "+" : "") + v.toFixed(r.dec) + r.unit });
+  });
+  if (pick.C !== null && pick.C !== undefined && pick.C >= 100)
+    lines.push({ l: "Énergie orageuse", v: Math.round(pick.C) + " J/kg" });
+
+  const LH = 13.5, W = 176, H = lines.length * LH + 12;
+  let bx = px + 12;
+  if (bx + W > c.padL + c.plotW) bx = px - 12 - W;
+  let by = Math.min(Math.max(c.padT + 6, py - H / 2), c.padT + c.plotH - H - 4);
+
+  c.add(c.el("rect", { x: bx, y: by, width: W, height: H, rx: 6,
+                       fill: surf, stroke: rule, "stroke-width": 1, opacity: .97 }));
+  lines.forEach((ln, i) => {
+    const y = by + 10 + i * LH + 5;
+    const t1 = c.add(c.el("text", { x: bx + 10, y: y, fill: ln.head ? ink : muted,
+      "font-size": ln.head ? 10.5 : 10, "font-weight": ln.head ? 700 : 400,
+      "font-family": ln.head ? "IBM Plex Mono, monospace" : "IBM Plex Sans, sans-serif" }));
+    t1.textContent = ln.l;
+    if (ln.v){
+      const t2 = c.add(c.el("text", { x: bx + W - 10, y: y, "text-anchor": "end", fill: ink,
+        "font-size": 10.5, "font-weight": 600, "font-family": "IBM Plex Mono, monospace" }));
+      t2.textContent = ln.v;
+    }
+  });
+}
+
+/* =======================================================================
+   VERDICT
+   ======================================================================= */
+function renderVerdict(){
+  const tk = todayKey();
+  const days = [];
+  for (let i = 0; i <= 7; i++){        // même horizon que le panneau de droite
+    const k = shiftKey(tk, i);
+    const dm = state.daily[k];
+    if (!dm || dm.drop24 === null || dm.drop24 === undefined) continue;
+    const fall = Math.min(0, dm.drop24);
+    const rise = dm.rise24 === null || dm.rise24 === undefined ? 0 : Math.max(0, dm.rise24);
+    const dom = (-fall >= rise) ? fall : rise;          // l'événement dominant, signé
+    days.push({ k, fall, rise, dom, rank: rankOf(Math.abs(dom)),
+                L: levelOf(fall), up: dom > 0,
+                from: dom > 0 ? dm.rFrom : dm.dFrom, to: dom > 0 ? dm.rTo : dm.dTo });
+  }
+  const pill = document.getElementById("vPill");
+  const head = document.getElementById("vHead");
+  const lede = document.getElementById("vLede");
+
+  if (!days.length){
+    pill.className = "pill lv-watch"; pill.innerHTML = '<span class="dot"></span>Pas de prévision';
+    head.textContent = "Aucune donnée de prévision disponible.";
+    lede.textContent = "Vérifie la connexion, puis recharge la page.";
+    document.getElementById("upcoming").innerHTML = "";
+    return;
+  }
+
+  const worst = days.reduce((a,b) => Math.abs(b.dom) > Math.abs(a.dom) ? b : a);
+  const first = days.find(d => d.rank >= 2);
+  const today = days.find(d => d.k === tk) || days[0];
+  const RANKNAME = ["Calme","Variation notable","Variation marquée","Variation forte"];
+
+  pill.className = "pill " + (today.rank === 0 ? "lv-ok"
+    : today.up ? "lv-up" : today.L.cls);
+  pill.innerHTML = '<span class="dot"></span>' +
+    (today.k === tk ? "Aujourd'hui" : shortDay(today.k)) + ' · ' + RANKNAME[today.rank] +
+    (today.rank ? (today.up ? " (hausse)" : " (baisse)") : "");
+
+  const magTxt = d => (d.dom > 0 ? "+" : "") + d.dom.toFixed(1);
+  if (first){
+    /* On nomme la FENÊTRE, pas le jour. Une chute de ce soir 18 h à demain 18 h
+       « appartient » à demain par convention, alors qu'elle commence aujourd'hui —
+       annoncer seulement « demain » donnerait tort à ce que l'œil lit sur la courbe. */
+    head.innerHTML = (first.up ? 'Remontée' : 'Baisse') + ' ' +
+      (first.rank === 3 ? "forte" : "marquée") + ' de <span class="mono">' +
+      magTxt(first) + ' hPa</span>, <em>' + windowTxt(first.from, first.to) + '</em>.';
+    const startsToday = first.from && dayFmt.format(new Date(first.from)) === tk;
+    lede.textContent = "La variation se compte sur 24 h glissantes : elle "
+      + (startsToday ? "commence donc aujourd'hui" : "commence le " + humanDay(dayFmt.format(new Date(first.from))))
+      + " et s'achève " + (dayFmt.format(new Date(first.to)) === shiftKey(tk,1) ? "demain" : "le " + humanDay(dayFmt.format(new Date(first.to))))
+      + ". Sur 8 jours, la plus ample vaut " + magTxt(worst) + " hPa ("
+      + windowTxt(worst.from, worst.to) + ").";
+  } else {
+    head.innerHTML = 'Rien de marqué sur les 8 prochains jours.';
+    lede.textContent = "La variation la plus ample prévue vaut " + magTxt(worst)
+      + " hPa sur 24 h glissantes (" + windowTxt(worst.from, worst.to)
+      + "), sous le seuil d'un passage de front net.";
+  }
+
+  const box = document.getElementById("upcoming");
+  box.innerHTML = "";
+  /* Barre bidirectionnelle : les baisses partent du centre vers la gauche,
+     les hausses vers la droite. La direction se lit sans dépendre de la couleur. */
+  upDefaultTxt = "Le plus ample sur 8 jours — " + (worst.dom > 0 ? "remontée de +" : "baisse de ")
+    + worst.dom.toFixed(1) + " hPa · " + windowTxt(worst.from, worst.to);
+  const scale = Math.max(12, Math.abs(worst.dom));
+  days.slice(0, 8).forEach(d => {
+    const row = document.createElement("div"); row.className = "up-row";
+    const c = d.rank === 0 ? "var(--muted)" : d.up ? "var(--up)" : "var(--" + d.L.id + ")";
+    const w = Math.min(50, Math.abs(d.dom) / scale * 50);
+    const style = d.up ? "left:50%;width:" + w.toFixed(1) + "%"
+                       : "right:50%;left:auto;width:" + w.toFixed(1) + "%";
+    /* Pas d'attribut title : l'infobulle native exige une seconde d'immobilité et
+       n'existe pas au toucher. Le détail s'écrit sous la liste, toujours visible. */
+    row.tabIndex = 0;
+    const detail = (d.dom > 0 ? "Remontée de +" : "Baisse de ") + d.dom.toFixed(1) +
+      " hPa · " + windowTxt(d.from, d.to);
+    const show = () => { const e = document.getElementById("upDetail"); if (e) e.textContent = detail; };
+    row.addEventListener("mouseenter", show);
+    row.addEventListener("focus", show);
+    row.addEventListener("click", show);
+    row.addEventListener("mouseleave", upDetailDefault);
+    row.addEventListener("blur", upDetailDefault);
+    row.innerHTML =
+      '<span class="day">' + (d.k === tk ? "auj." : shortDay(d.k)) + '</span>' +
+      '<span class="bar bidir"><i style="' + style + ';background:' + c + '"></i></span>' +
+      '<span class="val" style="color:' + c + '">' +
+        (d.dom > 0 ? "+" : "") + d.dom.toFixed(1) + '</span>';
+    box.appendChild(row);
+  });
+  upDetailDefault();
+}
+
+/* =======================================================================
+   JOURNAL
+   ======================================================================= */
+let draft = null;
+
+function blankDraft(){
+  const s = {}, c = {};
+  SYMPTOMS.forEach(x => s[x.key] = 0);
+  CONFOUNDERS.forEach(x => c[x.key] = 0);
+  return { s, c, note: "", touched: {} };
+}
+function loadDraft(){
+  const rec = state.journal[state.cursor];
+  const base = blankDraft();   // garantit une valeur pour les champs ajoutés après coup
+  draft = rec ? { s: Object.assign(base.s, rec.s), c: Object.assign(base.c, rec.c),
+                  note: rec.note || "", touched: {} }
+              : base;
+
+
+  document.getElementById("note").value = draft.note;
+  renderFields();
+  const k = state.cursor;
+  const suffix = k === todayKey() ? "  ·  aujourd'hui" : "";
+  document.getElementById("dCur").textContent = humanDay(k) + suffix;
+  document.getElementById("dNext").disabled = (k >= todayKey());
+  document.getElementById("dNext").style.opacity = (k >= todayKey()) ? .35 : 1;
+
+  /* Une journée déjà enregistrée garde le lieu où elle a été créée — un
+     ré-enregistrement des semaines plus tard ne doit pas réécrire un jour de
+     voyage. Quand ça ne correspond plus au lieu courant, on le dit et on propose
+     la correction plutôt que de trancher en silence. */
+  const el = document.getElementById("entryLoc");
+  const cur = locId(state.loc);
+  if (el){
+    if (rec && rec.loc && rec.loc !== cur){
+      el.hidden = false;
+      el.innerHTML = 'Journée rattachée à <strong>' + locName(rec.loc) + '</strong> — ' +
+        '<button class="linkbtn" id="fixLoc">la rattacher à ' + state.loc.label + '</button>';
+      const fx = document.getElementById("fixLoc");
+      if (fx) fx.addEventListener("click", () => {
+        state.journal[state.cursor].loc = cur;
+        LS.set(K_JOURNAL, state.journal);
+        loadDraft(); renderAll();
+      });
+    } else el.hidden = true;
+  }
+}
+function seg(container, items, current, onPick, extraClass){
+  const wrap = document.createElement("div");
+  wrap.className = "seg" + (extraClass ? " " + extraClass : "");
+  items.forEach((lab, v) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.textContent = lab; b.dataset.v = v;
+    b.setAttribute("aria-pressed", String(v === current));
+    b.addEventListener("click", () => onPick(v));
+    wrap.appendChild(b);
+  });
+  container.appendChild(wrap);
+}
+function renderFields(){
+  const sf = document.getElementById("symFields"); sf.innerHTML = "";
+  SYMPTOMS.forEach(x => {
+    const f = document.createElement("div"); f.className = "field";
+    const l = document.createElement("label"); l.textContent = x.label; f.appendChild(l);
+    seg(f, SEV, draft.s[x.key], v => { draft.s[x.key] = v; renderFields(); }, "sev");
+    sf.appendChild(f);
+  });
+  const cf = document.getElementById("confFields"); cf.innerHTML = "";
+  CONFOUNDERS.forEach(x => {
+    const f = document.createElement("div"); f.className = "field";
+    const l = document.createElement("label"); l.textContent = x.label; f.appendChild(l);
+    if (x.sub){
+      const sb = document.createElement("span");
+      sb.className = "xsmall muted"; sb.style.marginTop = "-3px"; sb.textContent = x.sub;
+      f.appendChild(sb);
+    }
+    seg(f, x.opts, draft.c[x.key], v => {
+      draft.c[x.key] = v; draft.touched[x.key] = true; renderFields();
+    });
+    if (x.hint){
+      const h = document.createElement("span");
+      h.className = "xsmall muted"; h.textContent = x.hint();
+      f.appendChild(h);
+    }
+    cf.appendChild(f);
+  });
+}
+function saveDay(){
+  draft.note = document.getElementById("note").value.trim();
+  state.journal[state.cursor] = {
+    s: Object.assign({}, draft.s), c: Object.assign({}, draft.c),
+    note: draft.note, ts: Date.now(),
+    loc: (state.journal[state.cursor] || {}).loc || locId(state.loc),
+  };
+  LS.set(K_JOURNAL, state.journal);
+  flashSaved();
+  renderAll();
+}
+function flashSaved(){
+  const n = document.getElementById("savedNote");
+  n.classList.add("on"); setTimeout(() => n.classList.remove("on"), 1600);
+}
+
+function renderStreak(){
+  const wrap = document.getElementById("streakDots"); wrap.innerHTML = "";
+  const tk = todayKey();
+  let filled = 0, painDays = 0;
+  for (let i = 29; i >= 0; i--){
+    const k = shiftKey(tk, -i);
+    const rec = state.journal[k];
+    const d = document.createElement("i");
+    if (rec){
+      filled++;
+      const mx = Math.max.apply(null, SYMPTOMS.map(s => rec.s[s.key] || 0));
+      if (mx > 0){ d.className = "pain"; painDays++; } else { d.className = "on"; }
+    }
+    if (k === tk) d.classList.add("today");
+    d.title = humanDay(k) + (rec ? "" : " — non renseigné");
+    wrap.appendChild(d);
+  }
+  document.getElementById("streakTxt").textContent =
+    filled + "/30 jours renseignés · " + painDays + " avec douleur";
+}
+
+/* =======================================================================
+   ANALYSE
+   ======================================================================= */
+function mean(a){ return a.reduce((x,y) => x+y, 0) / a.length; }
+
+/* Benjamini-Hochberg : convertit une liste de p en taux de fausses découvertes.
+   Avec des dizaines de tests, lire les p bruts revient à collectionner le hasard ;
+   q est la proportion attendue de faux positifs parmi les lignes retenues. */
+function bhFdr(ps){
+  const m = ps.length;
+  const ord = ps.map((p, i) => ({ p, i })).sort((a, b) => a.p - b.p);
+  const q = new Array(m);
+  let running = 1;
+  for (let r = m; r >= 1; r--){
+    const e = ord[r-1];
+    running = Math.min(running, e.p * m / r);
+    q[e.i] = running;
+  }
+  return q;
+}
+
+function permTest(values, labels, iters){
+  const idx1 = [], idx0 = [];
+  labels.forEach((l,i) => (l ? idx1 : idx0).push(values[i]));
+  if (idx1.length < 3 || idx0.length < 3) return null;
+  const obs = mean(idx1) - mean(idx0);
+  const all = values.slice(), n = all.length, n1 = idx1.length;
+  let hits = 0;
+  for (let it = 0; it < iters; it++){
+    for (let i = n - 1; i > 0; i--){
+      const j = (Math.random() * (i+1)) | 0;
+      const t = all[i]; all[i] = all[j]; all[j] = t;
+    }
+    let s1 = 0; for (let i = 0; i < n1; i++) s1 += all[i];
+    let s0 = 0; for (let i = n1; i < n; i++) s0 += all[i];
+    const diff = s1/n1 - s0/(n-n1);
+    if (Math.abs(diff) >= Math.abs(obs) - 1e-12) hits++;
+  }
+  return { obs, p: (hits + 1) / (iters + 1), n1: idx1.length, n0: idx0.length,
+           m1: mean(idx1), m0: mean(idx0) };
+}
+
+function renderAnalysis(){
+  const box = document.getElementById("analysis");
+  const keys = Object.keys(state.journal).sort();
+  const n = keys.length;
+  const MIN_DAYS = 30;
+
+  if (n < MIN_DAYS){
+    const pct = Math.min(100, n / MIN_DAYS * 100);
+    box.innerHTML =
+      '<p class="small" style="margin:0 0 4px">Il faut au minimum <strong>' + MIN_DAYS +
+      ' jours renseignés</strong> — dont une dizaine avec douleur et une dizaine sans — avant qu\'un calcul ait un sens. ' +
+      'En dessous, le bruit domine et tout résultat serait trompeur.</p>' +
+      '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
+      '<p class="xsmall mono muted" style="margin:0">' + n + ' / ' + MIN_DAYS + ' jours</p>' +
+      '<div class="notice" style="margin-top:16px">Pendant ce temps, la pression continue d\'être enregistrée ' +
+      'automatiquement à chaque ouverture de la page. Aucune donnée météo ne sera perdue.</div>';
+    return;
+  }
+
+  /* Les deux directions sont testées. La baisse est l'hypothèse principale
+     (c'est elle que la littérature sur les céphalées documente le mieux) ;
+     la hausse est exploratoire, mais elle a son propre mécanisme plausible
+     du côté de l'oreille moyenne — donc on ne la suppose pas absente. */
+  /* Deux familles. « Primaire » = les hypothèses que tu as formulées AVANT de voir
+     la moindre donnée — la pression qui chute, et le temps lourd et orageux. C'est
+     une pré-spécification au sens strict, et elle vaut cher : la correction pour
+     tests multiples s'applique à l'intérieur de chaque famille, donc tes deux
+     hypothèses ne sont pas pénalisées par les pistes exploratoires. */
+  const METRICS = [
+    { key:"drop24",  label:"Baisse P",    unit:"hPa",  col:"var(--alert)", fam:0 },
+    { key:"dewmax",  label:"Lourdeur",    unit:"°C",   col:"var(--up)",    fam:0 },
+    { key:"capemax", label:"Orage",       unit:"J/kg", col:"var(--crit)",  fam:0 },
+    { key:"rise24",  label:"Hausse P",    unit:"hPa",  col:"var(--up)",    fam:1 },
+    { key:"tmean",   label:"Temp. moy.",  unit:"°C",   col:"var(--accent)",fam:1 },
+    { key:"tvar24",  label:"Variation T", unit:"°C",   col:"var(--accent)",fam:1 },
+  ];
+  const FAM = ["pré-spécifiée", "exploratoire"];
+  const rows = [];
+  SYMPTOMS.forEach(sym => {
+    METRICS.forEach(met => {
+      for (let lag = 0; lag <= 2; lag++){
+        const vals = [], labs = [], flags = [];
+        keys.forEach(k => {
+          // chaque journée est confrontée à la pression du lieu où tu étais ce jour-là
+          const dm = dailyFor(state.journal[k].loc, shiftKey(k, -lag));
+          const v = dm ? dm[met.key] : null;
+          if (v === null || v === undefined) return;
+          vals.push(v);
+          labs.push((state.journal[k].s[sym.key] || 0) > 0 ? 1 : 0);
+          flags.push(isConfounded(k));
+        });
+        const r = permTest(vals, labs, 2000);
+        if (r) rows.push({ sym: sym.label, met, lag, r, vals, labs, flags });
+      }
+    });
+  });
+
+  if (!rows.length){
+    box.innerHTML = '<div class="notice warnbox">Pas encore assez de contraste : il faut au moins 3 jours ' +
+      'avec douleur <em>et</em> 3 sans, pour un même symptôme.</div>';
+    return;
+  }
+
+  // Correction de Benjamini-Hochberg, appliquée séparément dans chaque famille.
+  [0, 1].forEach(f => {
+    const sub = rows.filter(x => x.met.fam === f);
+    if (!sub.length) return;
+    const qs = bhFdr(sub.map(x => x.r.p));
+    sub.forEach((x, i) => { x.q = qs[i]; });
+  });
+  rows.sort((a,b) => (a.met.fam - b.met.fam) || (a.r.p - b.r.p));
+  const nTests = rows.length;
+  const nPrim = rows.filter(x => x.met.fam === 0).length;
+
+  let html = '<div class="notice warnbox" style="margin-bottom:16px">' +
+    '<strong>' + nTests + ' tests, dont ' + nPrim + ' sur tes hypothèses pré-spécifiées.</strong> ' +
+    'À cette échelle, les <span class="mono">p</span> bruts ne veulent plus rien dire : ' +
+    'à p &lt; 0,05, environ <strong>' + (nTests * 0.05).toFixed(1) + '</strong> lignes ressortiraient sans ' +
+    'aucun lien réel. La colonne <span class="mono">q</span> corrige ça (Benjamini-Hochberg, appliqué dans ' +
+    'chaque famille séparément) : c\'est la proportion attendue de faux positifs parmi les lignes que tu ' +
+    'retiendrais. <strong>Fie-toi à q, pas à p.</strong> Un q sous 0,10 mérite ton attention ; un p seul, non.</div>';
+
+  html += '<div style="overflow-x:auto"><table class="an"><thead><tr>' +
+    '<th>Symptôme</th><th>Facteur</th><th>Décalage</th><th>Moy. jours AVEC</th><th>Jours SANS</th>' +
+    '<th>Écart</th><th>n</th><th>p</th><th>q</th></tr></thead><tbody>';
+
+  let curFam = -1;
+  rows.forEach(row => {
+    const r = row.r, q = row.q;
+    if (row.met.fam !== curFam){
+      curFam = row.met.fam;
+      html += '<tr><td colspan="9" class="fam-head">' +
+        (curFam === 0 ? "Hypothèses pré-spécifiées — pression en baisse, temps lourd, orage"
+                      : "Pistes exploratoires") + '</td></tr>';
+    }
+    const notable = q < 0.10, strong = q < 0.05;
+    const col = strong ? "var(--crit)" : notable ? "var(--alert)" : "var(--muted)";
+    const lagTxt = row.lag === 0 ? "jour même" : "J−" + row.lag;
+    const dec = row.met.key === "capemax" ? 0 : 1;
+    html += '<tr>' +
+      '<td style="font-weight:' + (notable ? 600 : 400) + '">' + row.sym + '</td>' +
+      '<td style="color:' + row.met.col + '">' + row.met.label + '</td>' +
+      '<td class="muted">' + lagTxt + '</td>' +
+      '<td class="num">' + r.m1.toFixed(dec) + '</td>' +
+      '<td class="num">' + r.m0.toFixed(dec) + '</td>' +
+      '<td class="num" style="color:' + col + ';font-weight:' + (notable ? 600 : 400) + '">' +
+        (r.obs > 0 ? "+" : "") + r.obs.toFixed(dec) + '</td>' +
+      '<td class="num muted">' + r.n1 + '/' + r.n0 + '</td>' +
+      '<td class="num muted">' +
+        (r.p < 0.001 ? "&lt;0,001" : r.p.toFixed(3).replace(".", ",")) + '</td>' +
+      '<td class="num" style="color:' + col + ';font-weight:' + (notable ? 700 : 400) + '">' +
+        (q < 0.001 ? "&lt;0,001" : q.toFixed(3).replace(".", ",")) + '</td>' +
+      '</tr>';
+  });
+  html += '</tbody></table></div>';
+
+  const best = rows.slice().sort((a,b) => a.q - b.q)[0];
+  const dec = best.met.key === "capemax" ? 0 : 1;
+  html += '<p class="small" style="margin-top:16px;max-width:70ch">' +
+    '<strong>Lecture.</strong> L\'écart est la différence de ce facteur entre tes jours avec douleur et tes ' +
+    'jours sans. Il compte davantage que <span class="mono">p</span> : un écart minuscule mais « significatif » ' +
+    'ne changera rien à ta vie. Ligne la plus forte à ce stade : <strong>' + best.sym + ' · ' +
+    best.met.label + '</strong> (' + (best.lag === 0 ? "jour même" : "J−" + best.lag) +
+    ', ' + FAM[best.met.fam] + '), écart de <span class="mono">' +
+    (best.r.obs > 0 ? "+" : "") + best.r.obs.toFixed(dec) + ' ' + best.met.unit +
+    '</span>, q = <span class="mono">' + best.q.toFixed(3).replace(".", ",") + '</span>' +
+    (best.q < 0.10 ? '. Ça tient après correction — c\'est la première chose sérieuse du tableau.'
+                   : '. Rien ne survit à la correction pour l\'instant, ce qui est une information en soi.') +
+    '</p>';
+
+  /* Contrôle : la même comparaison, en retirant les jours marqués par l'alcool,
+     une mauvaise nuit, un repas sauté ou un manque de caféine. Si l'effet
+     disparaît, c'est que le contexte le portait — pas la pression. */
+  const cv = [], cl = [];
+  best.vals.forEach((v, i) => { if (!best.flags[i]){ cv.push(v); cl.push(best.labs[i]); } });
+  const ctrl = permTest(cv, cl, 2000);
+  const dropped = best.vals.length - cv.length;
+  html += '<div class="notice" style="margin-top:18px"><strong>Contrôle des facteurs de confusion.</strong> ';
+  if (!ctrl){
+    html += 'Après retrait des ' + dropped + ' jour(s) marqués par au moins trois verres, une mauvaise nuit, ' +
+      'un jeûne prolongé ou un manque de caféine, il ne reste pas assez de jours pour refaire le test. ' +
+      'Continue à renseigner.';
+  } else {
+    const held = ctrl.p < 0.05, wasSig = best.r.p < 0.05;
+    html += 'Sur les ' + cv.length + ' jour(s) « propres » restants (' + dropped + ' écartés), ' +
+      'le même écart vaut <span class="mono">' + (ctrl.obs > 0 ? "+" : "") + ctrl.obs.toFixed(dec) +
+      ' ' + best.met.unit + '</span>, p = <span class="mono">' +
+      ctrl.p.toFixed(3).replace(".", ",") + '</span>. ' +
+      (wasSig && held ? 'L\'effet tient sans eux — c\'est le résultat qui compte.'
+       : wasSig && !held ? 'L\'effet ne survit pas au retrait : le contexte en portait probablement une partie.'
+       : 'Rien de significatif avant comme après ; rien à conclure pour l\'instant.');
+  }
+  html += '</div>';
+
+  box.innerHTML = html;
+}
+
+/* =======================================================================
+   EXPORT / IMPORT
+   ======================================================================= */
+function download(name, text, mime){
+  const b = new Blob([text], { type: mime || "text/plain;charset=utf-8" });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement("a");
+  a.href = u; a.download = name; document.body.appendChild(a); a.click();
+  document.body.removeChild(a); setTimeout(() => URL.revokeObjectURL(u), 1500);
+}
+function exportJson(){
+  download("baroscope-sauvegarde-" + todayKey() + ".json",
+    JSON.stringify({ v: 2, exported: new Date().toISOString(), loc: state.loc,
+                     journal: state.journal, byLoc: state.byLoc }, null, 1),
+    "application/json");
+}
+function exportCsv(){
+  const head = ["date","p_min","p_max","p_moy","chute_24h","hausse_24h","var_max_3h",
+                "temp_moy","temp_min","temp_max","temp_var_24h","point_rosee_max","cape_max"]
+    .concat(SYMPTOMS.map(s => s.key))
+    .concat(CONFOUNDERS.map(c => c.key))
+    .concat(["cafeine_habitude","cafeine_ecart","jour_trouble","lieu","note"]);
+  const keys = Object.keys(state.journal).sort();
+  const lines = [head.join(",")];
+  keys.forEach(k => {
+    const r = state.journal[k], dm = dailyFor(r.loc, k) || {};
+    const cells = [k, dm.min ?? "", dm.max ?? "", dm.mean ?? "",
+                   dm.drop24 ?? "", dm.rise24 ?? "", dm.rate3 ?? "",
+                   dm.tmean ?? "", dm.tmin ?? "", dm.tmax ?? "", dm.tvar24 ?? "",
+                   dm.dewmax ?? "", dm.capemax ?? ""]
+      .concat(SYMPTOMS.map(s => r.s[s.key] ?? ""))
+      .concat(CONFOUNDERS.map(c => r.c[c.key] ?? ""))
+      .concat([cafBaseline(k) ?? "", cafDeficit(k) ?? "", isConfounded(k) ? 1 : 0,
+               r.loc || locId(state.loc)])
+      .concat(['"' + String(r.note || "").replace(/"/g, '""') + '"']);
+    lines.push(cells.join(","));
+  });
+  download("baroscope-analyse-" + todayKey() + ".csv", lines.join("\n"), "text/csv;charset=utf-8");
+}
+function importJson(file){
+  const fr = new FileReader();
+  fr.onload = () => {
+    try {
+      const j = JSON.parse(fr.result);
+      if (!j.journal) throw new Error("fichier non reconnu");
+      const before = Object.keys(state.journal).length;
+      Object.assign(state.journal, j.journal);
+      if (j.byLoc){                                  // sauvegarde v2, multi-lieux
+        for (const id in j.byLoc){
+          if (!state.byLoc[id]) state.byLoc[id] = {};
+          Object.assign(state.byLoc[id], j.byLoc[id]);
+        }
+      } else if (j.daily){                           // sauvegarde v1 : un seul lieu
+        const id = j.cfg ? locId(j.cfg) : locId(DEFAULT_LOC);
+        if (!state.byLoc[id]) state.byLoc[id] = {};
+        Object.assign(state.byLoc[id], j.daily);
+      }
+      migrateStorage();
+      useLocation(state.loc, true);
+      LS.set(K_JOURNAL, state.journal);
+      const after = Object.keys(state.journal).length;
+      loadDraft(); renderAll();
+      alert("Restauration réussie — " + (after - before) + " jour(s) ajouté(s), " + after + " au total.");
+    } catch(e){
+      alert("Impossible de lire ce fichier : " + e.message);
+    }
+  };
+  fr.readAsText(file);
+}
+
+/* =======================================================================
+   RENDU GLOBAL + INIT
+   ======================================================================= */
+function renderAll(){
+  state.thr = calibrate();          // seuils recalés à chaque rendu sur l'historique disponible
+  renderLegend();
+  renderVerdict(); drawChart(); renderStreak(); renderAnalysis();
+  const nJ = Object.keys(state.journal).length;
+  const locs = Object.keys(state.byLoc || {});
+  const nD = locs.reduce((s, id) => s + Object.keys(state.byLoc[id]).length, 0);
+  document.getElementById("dataStat").textContent =
+    nJ + " jour(s) de journal · " + nD + " jour(s) de pression sur "
+    + locs.length + " lieu(x) en mémoire locale";
+  renderLocLabel();
+}
+
+/* ---------- choix du lieu ---------- */
+function renderLocLabel(){
+  const e = document.getElementById("locLabel");
+  if (!e) return;
+  const n = Object.keys(state.daily).length;
+  e.textContent = state.loc.label + " · " + state.loc.lat.toFixed(3) + " N, "
+    + state.loc.lon.toFixed(3) + " E · " + n + " jour" + (n > 1 ? "s" : "") + " d'historique";
+}
+
+async function geocode(q){
+  const url = "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(q)
+            + "&count=6&language=fr&format=json";
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const j = await r.json();
+  return (j.results || []).map(x => ({
+    lat: x.latitude, lon: x.longitude, tz: x.timezone,
+    label: x.name + (x.admin1 ? ", " + x.admin1 : ""),
+    country: x.country || "",
+  }));
+}
+
+function setupLocPicker(){
+  const btn = document.getElementById("locBtn"), box = document.getElementById("locBox");
+  const q = document.getElementById("locQ"), res = document.getElementById("locRes");
+  let timer = null;
+
+  btn.addEventListener("click", () => {
+    box.hidden = !box.hidden;
+    if (!box.hidden) q.focus();
+  });
+
+  const msg = t => { res.innerHTML = '<div class="msg">' + t + '</div>'; };
+
+  q.addEventListener("input", () => {
+    clearTimeout(timer);
+    const v = q.value.trim();
+    if (v.length < 2){ res.innerHTML = ""; return; }
+    timer = setTimeout(async () => {
+      msg("Recherche…");
+      try {
+        const list = await geocode(v);
+        if (!list.length){ msg("Aucun lieu trouvé pour « " + v + " »."); return; }
+        res.innerHTML = "";
+        list.forEach(l => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.innerHTML = '<div>' + l.label + '</div><div class="meta">' + l.country + ' · '
+            + l.lat.toFixed(2) + ' N, ' + l.lon.toFixed(2) + ' E · ' + l.tz + '</div>';
+          b.addEventListener("click", async () => {
+            box.hidden = true; q.value = ""; res.innerHTML = "";
+            useLocation({ lat: l.lat, lon: l.lon, tz: l.tz, label: l.label }, true);
+            state.cursor = todayKey();
+            loadDraft();
+            await refresh();
+          });
+          res.appendChild(b);
+        });
+      } catch(e){
+        msg("Recherche impossible (" + e.message + "). Vérifie la connexion.");
+      }
+    }, 350);
+  });
+}
+
+function renderLegend(){
+  const t = thr(), c = state.thr || {};
+  const set = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+  set("lgT1", t[0] + " à " + t[1] + " hPa");
+  set("lgT2", t[1] + " à " + t[2]);
+  set("lgT3", "plus de " + t[2]);
+  const note = document.getElementById("thrNote");
+  if (note) note.textContent = c.cal
+    ? "Seuils calibrés sur " + c.n + " jours de données à " + state.loc.label + " : " + t[0] + " / " + t[1]
+      + " / " + t[2] + " hPa, soit le cinquième des journées les plus agitées, puis les 8 %, puis les "
+      + "2,5 % les plus raides. Recalculés à chaque ouverture, ils suivent les saisons."
+    : "Seuils provisoires (" + t.join(" / ") + " hPa) — ils se recaleront sur ton climat local dès "
+      + Math.max(0, 60 - (c.n || 0)) + " jours de données de plus.";
+}
+
+function setTheme(t){
+  if (t) document.documentElement.setAttribute("data-theme", t);
+  else document.documentElement.removeAttribute("data-theme");
+  LS.set(K_THEME, t || null);
+}
+
+async function init(){
+  setTheme(LS.get(K_THEME, null));
+  document.getElementById("themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme");
+    const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const next = cur ? (cur === "dark" ? "light" : null) : (dark ? "light" : "dark");
+    setTheme(next); drawChart();
+  });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => drawChart());
+
+  document.getElementById("dPrev").addEventListener("click", () => { state.cursor = shiftKey(state.cursor, -1); loadDraft(); });
+  document.getElementById("dNext").addEventListener("click", () => {
+    if (state.cursor >= todayKey()) return;
+    state.cursor = shiftKey(state.cursor, 1); loadDraft();
+  });
+  document.getElementById("dToday").addEventListener("click", () => { state.cursor = todayKey(); loadDraft(); });
+  document.getElementById("saveBtn").addEventListener("click", saveDay);
+  document.getElementById("noPainBtn").addEventListener("click", () => {
+    draft = blankDraft(); document.getElementById("note").value = ""; renderFields(); saveDay();
+  });
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    if (!state.journal[state.cursor]) return;
+    if (!confirm("Effacer la saisie du " + humanDay(state.cursor) + " ?")) return;
+    delete state.journal[state.cursor];
+    LS.set(K_JOURNAL, state.journal); loadDraft(); renderAll();
+  });
+  document.getElementById("expJson").addEventListener("click", exportJson);
+  document.getElementById("expCsv").addEventListener("click", exportCsv);
+  document.getElementById("impBtn").addEventListener("click", () => document.getElementById("impFile").click());
+  document.getElementById("impFile").addEventListener("change", e => {
+    if (e.target.files[0]) importJson(e.target.files[0]);
+    e.target.value = "";
+  });
+  window.addEventListener("resize", () => { clearTimeout(window.__rz); window.__rz = setTimeout(drawChart, 150); });
+
+  // Écouteurs posés une fois pour toutes : l'élément <svg> survit à chaque redessin.
+  const svg = document.getElementById("chart");
+  svg.addEventListener("pointermove", chartReadout);
+  svg.addEventListener("pointerdown", chartReadout);
+  svg.addEventListener("pointerleave", hideCross);
+  svg.style.cursor = "crosshair";
+  setupLocPicker();
+
+  loadDraft();
+  renderAll();
+
+  await refresh();
+}
+
+/* Récupération + rendu, réutilisable : appelée au chargement et à chaque
+   changement de lieu. */
+async function refresh(){
+  const pill = document.getElementById("fetchPill");
+  pill.className = "pill lv-watch";
+  pill.innerHTML = '<span class="dot"></span>Chargement…';
+  document.querySelectorAll("#verdict .errbox").forEach(n => n.remove());
+  renderLocLabel();
+  try {
+    state.hourly = await fetchPressure();
+    const fresh = computeDaily(state.hourly);
+    Object.assign(state.daily, fresh);          // l'historique s'accumule au-delà des 92 jours de l'API
+    LS.set(K_BYLOC, state.byLoc);
+    state.online = true;
+    state.lastFetch = new Date();
+    pill.className = "pill lv-ok";
+    pill.innerHTML = '<span class="dot"></span>Données à jour';
+    const m = state.tzMeta || {};
+    const offH = m.off === undefined ? null : (m.off / 3600);
+    document.getElementById("lastFetch").textContent =
+      "màj " + stampFmt.format(state.lastFetch)
+      + (m.tz ? "  ·  données en " + m.tz + (offH === null ? "" :
+          " (UTC" + (offH >= 0 ? "+" : "") + offH + (m.abbr ? ", " + m.abbr : "") + ")") : "");
+  } catch(err){
+    state.online = false;
+    pill.className = "pill lv-crit";
+    pill.innerHTML = '<span class="dot"></span>Hors ligne';
+    const nD = Object.keys(state.daily).length;
+    document.getElementById("lastFetch").textContent = "récupération impossible (" + err.message + ")";
+    const v = document.getElementById("verdict");
+    const warn = document.createElement("div");
+    warn.className = "notice errbox";
+    warn.style.cssText = "grid-column:1/-1;border-radius:0;border-left-width:3px;margin:0";
+    warn.innerHTML = "<strong>Impossible de joindre Open-Meteo.</strong> " +
+      (nD ? "Les " + nD + " jours déjà en mémoire restent affichés et le journal fonctionne normalement. " : "") +
+      "Si tu as ouvert le fichier directement (<code>file://</code>), certains navigateurs bloquent la requête : " +
+      "place le fichier dans un dossier, ouvre un terminal dedans et lance " +
+      "<code>python3 -m http.server 8000</code>, puis va sur <code>http://localhost:8000/baroscope.html</code>.";
+    v.appendChild(warn);
+  }
+  renderLocLabel();
+  renderAll();
+}
+
+init();
+</script>
+</body>
+</html>
